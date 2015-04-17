@@ -1,0 +1,27 @@
+{
+  "name": "plugin-form-validation",
+  "version": "0.0.1",
+  "description": "The client-side to manage and test the form validation plugin",
+  "author": "Jaime Pajuelo",
+  "license": {
+    "type": "Apache License 2.0",
+    "url": "https://github.com/jpajuelo/plugin-form-validation/blob/master/LICENSE"
+  },
+  "main": "dist/form-validation.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/jpajuelo/plugin-form-validation.git"
+  },
+  "bugs": {
+    "url": "https://github.com/jpajuelo/plugin-form-validation/issues"
+  },
+  "keywords": [
+    "web",
+    "plugin",
+    "form",
+    "validation"
+  ],
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  }
+}
