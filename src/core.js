@@ -62,6 +62,18 @@ var utils = {
         return JSON.parse(JSON.stringify(sourceObject))
     },
 
+    formatString: function formatString(sourceString, namedArgs) {
+        var name;
+
+        for (name in namedArgs) {
+            if (sourceString.indexOf("%(" + name + ")s") != -1) {
+                sourceString = sourceString.replace("%(" + name + ")s", namedArgs[name]);
+            }
+        }
+
+        return sourceString;
+    },
+
     /**
      * @param {Object} sourceObject
      * @param {Object} targetObject
