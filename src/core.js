@@ -62,6 +62,11 @@ var utils = {
         return JSON.parse(JSON.stringify(sourceObject))
     },
 
+    /**
+     * @param {String} sourceString
+     * @param {Object.<String, *>} namedArgs
+     * @returns {String} The new string formatted.
+     */
     formatString: function formatString(sourceString, namedArgs) {
         var name;
 
