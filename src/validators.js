@@ -103,6 +103,7 @@ validators.RequiredValidator = (function () {
     /**
      * @override
      * @param {String} fieldValue
+     * @throws {ValidationError}
      * @returns {RequiredValidator} The instance on which this method was called.
      */
     RequiredValidator.member('validate', function validate(fieldValue) {
@@ -145,6 +146,7 @@ validators.MaxLengthValidator = (function () {
     /**
      * @override
      * @param {String} fieldValue
+     * @throws {ValidationError}
      * @returns {MaxLengthValidator} The instance on which this method was called.
      */
     MaxLengthValidator.member('validate', function validate(fieldValue) {
@@ -187,6 +189,7 @@ validators.MinLengthValidator = (function () {
     /**
      * @override
      * @param {String} fieldValue
+     * @throws {ValidationError}
      * @returns {MinLengthValidator} The instance on which this method was called.
      */
     MinLengthValidator.member('validate', function validate(fieldValue) {
