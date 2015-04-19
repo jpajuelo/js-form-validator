@@ -52,14 +52,39 @@ var utils = {
 
     /**
      * @param {Object} sourceObject
+     * @param {Boolean} recursiveCall
      * @returns {Object} The new object cloned.
      */
-    cloneObject: function cloneObject(sourceObject) {
-        if (sourceObject == null || typeof sourceObject !== 'object') {
-            sourceObject = {};
+    cloneObject: function cloneObject(sourceObject, recursiveCall) {
+        var cloned, i;
+
+        if (typeof recursiveCall !== 'boolean') {
+            recursiveCall = false;
         }
 
-        return JSON.parse(JSON.stringify(sourceObject))
+        if (sourceObject == null || typeof sourceObject !== 'object') {
+            return recursiveCall ? sourceObject : {};
+        }
+
+        if (sourceObject instanceof RegExp) {
+            return sourceObject;
+        }
+
+        if (Array.isArray(sourceObject)) {
+            cloned = [];
+        } else {
+            cloned = {};
+        }
+
+        for (i in sourceObject) {
+            if (sourceObject[i] != null && typeof sourceObject[i] === 'object') {
+                cloned[i] = this.cloneObject(sourceObject[i], true);
+            } else {
+                cloned[i] = sourceObject[i];
+            }
+        }
+
+        return cloned;
     },
 
     /**
