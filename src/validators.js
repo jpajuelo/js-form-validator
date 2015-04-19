@@ -55,7 +55,7 @@ validators.BaseValidator = (function () {
 
     /**
      * @constructor
-     * @param {Object.<String, *>} options
+     * @param {Object.<String, *>} [options]
      */
     var BaseValidator = function BaseValidator(options) {
         var defaultOptions = {
@@ -87,7 +87,7 @@ validators.RequiredValidator = (function () {
     /**
      * @constructor
      * @extends {BaseValidator}
-     * @param {Object.<String, *>} options
+     * @param {Object.<String, *>} [options]
      */
     var RequiredValidator = function RequiredValidator(options) {
         var defaultOptions = {
@@ -124,7 +124,7 @@ validators.MaxLengthValidator = (function () {
      * @constructor
      * @extends {BaseValidator}
      * @param {Number} maxLength
-     * @param {Object.<String, *>} options
+     * @param {Object.<String, *>} [options]
      */
     var MaxLengthValidator = function MaxLengthValidator(maxLength, options) {
         var defaultOptions = {
@@ -166,7 +166,7 @@ validators.MinLengthValidator = (function () {
      * @constructor
      * @extends {BaseValidator}
      * @param {Number} minLength
-     * @param {Object.<String, *>} options
+     * @param {Object.<String, *>} [options]
      */
     var MinLengthValidator = function MinLengthValidator(minLength, options) {
         var defaultOptions = {
