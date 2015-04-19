@@ -180,7 +180,7 @@ validators.MinLengthValidator = (function () {
             'minLength': minLength
         });
 
-        this.parentClass.call(this, utils.merge(defaultOptions, options));
+        this.parentClass.call(this, utils.updateObject(defaultOptions, options));
         this.minLength = minLength;
     };
 
