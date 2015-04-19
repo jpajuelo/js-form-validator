@@ -203,3 +203,44 @@ validators.MinLengthValidator = (function () {
     return MinLengthValidator;
 
 })();
+
+
+validators.RegexValidator = (function () {
+
+    /**
+     * @constructor
+     * @extends {BaseValidator}
+     * @param {String|Regexp} pattern
+     * @param {Object.<String, *>} [options]
+     */
+    var RegexValidator = function RegexValidator(pattern, options) {
+        var defaultOptions = {
+            'code': 'invalid',
+            'message': "This field must be a valid value."
+        };
+
+        options = utils.updateObject(defaultOptions, options);
+
+        this.parentClass.call(this, options);
+        this.regex = new RegExp(pattern, options.flags);
+    };
+
+    RegexValidator.inherit(validators.BaseValidator);
+
+    /**
+     * @override
+     * @param {String} fieldValue
+     * @throws {ValidationError}
+     * @returns {RegexValidator} The instance on which this method was called.
+     */
+    RegexValidator.member('validate', function validate(fieldValue) {
+        if (!this.regex.test(fieldValue)) {
+            throw new validators.ValidationError(this.message);
+        }
+
+        return this;
+    });
+
+    return RegexValidator;
+
+})();
