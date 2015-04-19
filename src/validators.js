@@ -31,7 +31,8 @@ validators.ValidationError = (function () {
      * @param {String} message
      */
     var ValidationError = function ValidationError(message) {
-        this.parentClass.call(this, message);
+        this.parentClass.captureStackTrace(this, this.constructor);
+        this.message = message;
 
         this.element = document.createElement('div');
         this.element.className = "control-error";
