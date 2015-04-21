@@ -38,25 +38,30 @@ forms.BaseField = (function () {
             'required': true
         };
 
-        this.options = utils.updateObject(defaultOptions, options);
+        var defaultProps = {
+            'label': null
+        };
 
-        this.label = null;
+        defaultOptions = utils.updateObject(defaultOptions, options);
+        defaultProps = utils.updateObject(defaultProps, options);
+
+        this.label = defaultProps.label;
         this.initialValue = null;
 
         this.name = null;
-        this.element = this.buildElement();
-        this.validators = buildValidators(this.options);
+        this.element = _createControl.call(this);
+        this.validators = buildValidators(defaultOptions);
 
         this.helpText = null;
-        this.errorMessage = null;
+        this.errorMessage = document.createElement('p');
+        this.errorMessage.className = "control-error";
     };
 
     /**
      * @abstract
-     * @access protected
      * @returns {HTMLElement}
      */
-    BaseField.member('_buildElement', function _buildElement() {
+    BaseField.member('createControl', function createControl() {
         return null;
     });
 
@@ -64,7 +69,7 @@ forms.BaseField = (function () {
      * @returns {BaseField} The instance on which this method was called.
      */
     BaseField.member('clean', function clean() {
-        this.errorMessage = null;
+        this.errorMessage.textContent = "";
 
         return this;
     });
@@ -76,7 +81,7 @@ forms.BaseField = (function () {
     BaseField.member('getValue', function getValue() {
 
         if (!(this.element instanceof HTMLElement)) {
-            throw new TypeError("The property 'element' must be a HTMLElement object.");
+            throw new TypeError("The element is not instance of HTMLElement.");
         }
 
         return this.element.value.trim();
@@ -88,16 +93,14 @@ forms.BaseField = (function () {
     BaseField.member('hasError', function hasError() {
         var cleanedValue, found, i;
 
-        this.clean();
-
-        cleanedValue = this.getValue();
+        cleanedValue = this.clean().getValue();
 
         for (found = false, i = 0; !found && i < this.validators.length; i++) {
             try {
                 this.validators[i].validate(cleanedValue);
             } catch (e) {
                 if (e instanceof validators.ValidationError) {
-                    this.errorMessage = e.message;
+                    this.errorMessage.textContent = e.message;
                     found = true;
                 }
             }
@@ -106,27 +109,56 @@ forms.BaseField = (function () {
         return found;
     });
 
+    /**
+     * @returns {BaseField} The instance on which this method was called.
+     */
+    BaseField.member('setName', function setName(fieldName) {
+
+        if (!(this.element instanceof HTMLElement)) {
+            throw new TypeError("The element is not instance of HTMLElement.");
+        }
+
+        this.name = fieldName;
+        this.element.setAttribute('name', fieldName);
+
+        return this;
+    });
+
+
+    var _createControl = function _createControl() {
+        var newControl = this.createControl();
+
+        if (!(newControl instanceof HTMLElement)) {
+            throw new TypeError("The element is not instance of HTMLElement.");
+        }
+
+        newControl.addEventListener('input', function (event) {
+            this.hasError();
+        }.bind(this));
+
+        return newControl;
+    };
 
     var buildValidators = function buildValidators(options) {
-        var validators = [];
+        var validatorList = [];
 
         if (options.required) {
-            validators.push(new validators.RequiredValidator());
+            validatorList.push(new validators.RequiredValidator());
         }
 
         if (options.minLength > 0) {
-            validators.push(new validators.MinLengthValidator(options.minLength));
+            validatorList.push(new validators.MinLengthValidator(options.minLength));
         }
 
         if (options.maxLength > options.minLength) {
-            validators.push(new validators.MaxLengthValidator(options.maxLength));
+            validatorList.push(new validators.MaxLengthValidator(options.maxLength));
         }
 
         if (options.pattern != null) {
-            validators.push(new validators.RegexValidator(options.pattern));
+            validatorList.push(new validators.RegexValidator(options.pattern));
         }
 
-        return validators;
+        return validatorList;
     };
 
     return BaseField;
@@ -142,22 +174,34 @@ forms.TextField = (function () {
      * @param {Object.<String, *>} [options]
      */
     var TextField = function TextField(options) {
-        this.parentClass.call(this, options);
+        var defaultOptions = {
+            'placeholder': null,
+            'type': "text"
+        };
+
+        defaultOptions = utils.updateObject(defaultOptions, options);
+
+        this.type = defaultOptions.type;
+        this.placeholder = defaultOptions.placeholder;
+        this.callParent(options);
     };
 
     TextField.inherit(forms.BaseField);
 
     /**
      * @override
-     * @access protected
      * @returns {HTMLElement}
      */
-    TextField.member('_buildElement', function _buildElement() {
+    TextField.member('createControl', function createControl() {
         var element;
 
         element = document.createElement('input');
         element.className = "form-control";
-        element.type = "text";
+        element.type = this.type;
+
+        if (this.placeholder != null) {
+            element.placeholder = this.placeholder;
+        }
 
         return element;
     });
@@ -171,29 +215,17 @@ forms.PasswordField = (function () {
 
     /**
      * @constructor
-     * @extends {BaseField}
+     * @extends {TextField}
      * @param {Object.<String, *>} [options]
      */
     var PasswordField = function PasswordField(options) {
-        this.parentClass.call(this, options);
+        options = utils.updateObject(options);
+        options.type = "password";
+
+        this.callParent(options);
     };
 
-    PasswordField.inherit(forms.BaseField);
-
-    /**
-     * @override
-     * @access protected
-     * @returns {HTMLElement}
-     */
-    PasswordField.member('_buildElement', function _buildElement() {
-        var element;
-
-        element = document.createElement('input');
-        element.className = "form-control";
-        element.type = "password";
-
-        return element;
-    });
+    PasswordField.inherit(forms.TextField);
 
     return PasswordField;
 
@@ -208,17 +240,16 @@ forms.LongTextField = (function () {
      * @param {Object.<String, *>} [options]
      */
     var LongTextField = function LongTextField(options) {
-        this.parentClass.call(this, options);
+        this.callParent(options);
     };
 
     LongTextField.inherit(forms.BaseField);
 
     /**
      * @override
-     * @access protected
      * @returns {HTMLElement}
      */
-    LongTextField.member('_buildElement', function _buildElement() {
+    LongTextField.member('createControl', function createControl() {
         var element;
 
         element = document.createElement('textarea');
