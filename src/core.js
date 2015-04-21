@@ -23,11 +23,27 @@
  * @returns {Function} The instance on which this method was called.
  */
 Function.prototype.inherit = function inherit(parentClass) {
+    var callCounter = 0;
+
     this.prototype = Object.create(parentClass.prototype);
     this.prototype.constructor = this;
-
-    // TODO: think a better way to get the parent class.
     this.prototype.parentClass = parentClass;
+
+    this.prototype.callParent = function callParent() {
+        var currentClass, i;
+
+        currentClass = parentClass;
+
+        for (i = 0; i < callCounter; i++) {
+            currentClass = currentClass.prototype.parentClass;
+        }
+
+        callCounter++;
+        currentClass.apply(this, Array.prototype.slice.call(arguments));
+        callCounter--;
+
+        return this;
+    };
 
     return this;
 };
