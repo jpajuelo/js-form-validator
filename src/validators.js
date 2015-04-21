@@ -59,8 +59,8 @@ validators.BaseValidator = (function () {
      */
     var BaseValidator = function BaseValidator(options) {
         var defaultOptions = {
-            'code': "",
-            'message': ""
+            'code': null,
+            'message': null
         };
 
         options = utils.updateObject(defaultOptions, options);
@@ -95,7 +95,7 @@ validators.RequiredValidator = (function () {
             'message': "This field is required."
         };
 
-        this.parentClass.call(this, utils.updateObject(defaultOptions, options));
+        this.callParent(utils.updateObject(defaultOptions, options));
     };
 
     RequiredValidator.inherit(validators.BaseValidator);
@@ -137,8 +137,8 @@ validators.MaxLengthValidator = (function () {
             'maxLength': maxLength
         });
 
-        this.parentClass.call(this, utils.updateObject(defaultOptions, options));
         this.maxLength = maxLength;
+        this.callParent(utils.updateObject(defaultOptions, options));
     };
 
     MaxLengthValidator.inherit(validators.BaseValidator);
@@ -180,8 +180,8 @@ validators.MinLengthValidator = (function () {
             'minLength': minLength
         });
 
-        this.parentClass.call(this, utils.updateObject(defaultOptions, options));
         this.minLength = minLength;
+        this.callParent(utils.updateObject(defaultOptions, options));
     };
 
     MinLengthValidator.inherit(validators.BaseValidator);
@@ -219,10 +219,8 @@ validators.RegexValidator = (function () {
             'message': "This field must be a valid value."
         };
 
-        options = utils.updateObject(defaultOptions, options);
-
-        this.parentClass.call(this, options);
-        this.regex = new RegExp(pattern, options.flags);
+        this.regex = new RegExp(pattern);
+        this.callParent(utils.updateObject(defaultOptions, options));
     };
 
     RegexValidator.inherit(validators.BaseValidator);
