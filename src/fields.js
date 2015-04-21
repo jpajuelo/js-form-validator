@@ -66,6 +66,29 @@ forms.BaseField = (function () {
     });
 
     /**
+     * @returns {HTMLElement}
+     */
+    BaseField.member('build', function build() {
+        var fieldGroup, labelControl;
+
+        fieldGroup = document.createElement('div');
+        fieldGroup.className = "form-group";
+
+        if (this.label) {
+            labelControl = document.createElement('label');
+            labelControl.className = "control-label";
+            labelControl.textContent = this.label;
+
+            fieldGroup.appendChild(labelControl);
+        }
+
+        fieldGroup.appendChild(this.element);
+        fieldGroup.appendChild(this.errorMessage);
+
+        return fieldGroup;
+    });
+
+    /**
      * @returns {BaseField} The instance on which this method was called.
      */
     BaseField.member('clean', function clean() {
