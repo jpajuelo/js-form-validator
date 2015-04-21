@@ -99,6 +99,19 @@ forms.BaseField = (function () {
 
     /**
      * @throws {TypeError}
+     * @returns {String} The message of the error found.
+     */
+    BaseField.member('getErrorMessage', function getErrorMessage() {
+
+        if (!(this.element instanceof HTMLElement)) {
+            throw new TypeError("The element is not instance of HTMLElement.");
+        }
+
+        return this.errorMessage.textContent;
+    });
+
+    /**
+     * @throws {TypeError}
      * @returns {String} The element value cleaned.
      */
     BaseField.member('getValue', function getValue() {
