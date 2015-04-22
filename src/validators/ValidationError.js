@@ -29,7 +29,7 @@ fmval.validators.ValidationError = (function () {
 
         this.message = message;
 
-        this.element = document.createElement('div');
+        this.element = document.createElement('p');
         this.element.className = "control-error";
         this.element.textContent = message;
     };
