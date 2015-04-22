@@ -1,0 +1,58 @@
+/**
+ *  Copyright 2015 Jaime Pajuelo
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
+
+
+"use strict";
+
+
+fmval.validators.RegexValidator = (function () {
+
+    /**
+     * @constructor
+     * @extends {BaseValidator}
+     * @param {String|Regexp} pattern
+     * @param {Object.<String, *>} [options]
+     */
+    var RegexValidator = function RegexValidator(pattern, options) {
+        var defaultOptions = {
+            'code': "invalid",
+            'message': "This field must be a valid value."
+        };
+
+        this.regex = new RegExp(pattern);
+
+        this.callParent(fmval.utils.updateObject(defaultOptions, options));
+    };
+
+    RegexValidator.inherit(fmval.validators.BaseValidator);
+
+    /**
+     * @override
+     * @param {String} fieldValue
+     * @throws {ValidationError}
+     * @returns {RegexValidator} The instance on which this method was called.
+     */
+    RegexValidator.member('validate', function validate(fieldValue) {
+        if (!this.regex.test(fieldValue)) {
+            throw new fmval.validators.ValidationError(this.message);
+        }
+
+        return this;
+    });
+
+    return RegexValidator;
+
+})();
