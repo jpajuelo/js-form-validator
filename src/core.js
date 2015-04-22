@@ -20,15 +20,26 @@
 
 /**
  * @param {Function} parentClass
- * @returns {Function} The instance on which this method was called.
+ * @returns {Function}
  */
 Function.prototype.inherit = function inherit(parentClass) {
     var callCounter = 0;
 
     this.prototype = Object.create(parentClass.prototype);
+
+    /**
+     * @type {Function}
+     */
     this.prototype.constructor = this;
+
+    /**
+     * @type {Function}
+     */
     this.prototype.parentClass = parentClass;
 
+    /**
+     * @returns {Object} The instance on which this method was called.
+     */
     this.prototype.callParent = function callParent() {
         var currentClass, i;
 
@@ -40,7 +51,8 @@ Function.prototype.inherit = function inherit(parentClass) {
 
         callCounter++;
         currentClass.apply(this, Array.prototype.slice.call(arguments));
-        callCounter--;
+
+        callCounter = 0;
 
         return this;
     };
@@ -52,7 +64,7 @@ Function.prototype.inherit = function inherit(parentClass) {
 /**
  * @param {String} memberName
  * @param {Function} memberMethod
- * @returns {Function} The instance on which this method was called.
+ * @returns {Function}
  */
 Function.prototype.member = function member(memberName, memberMethod) {
     this.prototype[memberName] = memberMethod;
