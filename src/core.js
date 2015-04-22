@@ -76,80 +76,21 @@ Function.prototype.member = function member(memberName, memberMethod) {
 /**
  * @namespace
  */
-var utils = {
-
+var fmval = {
     /**
-     * @param {Object} sourceObject
-     * @param {Boolean} recursiveCall
-     * @returns {Object} The new object cloned.
+     * @namespace
      */
-    cloneObject: function cloneObject(sourceObject, recursiveCall) {
-        var cloned, i;
-
-        if (typeof recursiveCall !== 'boolean') {
-            recursiveCall = false;
-        }
-
-        if (sourceObject == null || typeof sourceObject !== 'object') {
-            return recursiveCall ? sourceObject : {};
-        }
-
-        if (sourceObject instanceof RegExp) {
-            return sourceObject;
-        }
-
-        if (Array.isArray(sourceObject)) {
-            cloned = [];
-        } else {
-            cloned = {};
-        }
-
-        for (i in sourceObject) {
-            if (sourceObject[i] != null && typeof sourceObject[i] === 'object') {
-                cloned[i] = this.cloneObject(sourceObject[i], true);
-            } else {
-                cloned[i] = sourceObject[i];
-            }
-        }
-
-        return cloned;
-    },
-
+    fields: {},
     /**
-     * @param {String} sourceString
-     * @param {Object.<String, *>} namedArgs
-     * @returns {String} The new string formatted.
+     * @namespace
      */
-    formatString: function formatString(sourceString, namedArgs) {
-        var name;
-
-        for (name in namedArgs) {
-            if (sourceString.indexOf("%(" + name + ")s") != -1) {
-                sourceString = sourceString.replace("%(" + name + ")s", namedArgs[name]);
-            }
-        }
-
-        return sourceString;
-    },
-
+    forms: {},
     /**
-     * @param {Object} sourceObject
-     * @param {Object} targetObject
-     * @return {Object} The sourceObject merged with targetObject.
+     * @namespace
      */
-    updateObject: function updateObject(sourceObject, targetObject) {
-        var name;
-
-        sourceObject = this.cloneObject(sourceObject);
-        targetObject = this.cloneObject(targetObject);
-
-        for (name in sourceObject) {
-            if (name in targetObject) {
-                sourceObject[name] = targetObject[name];
-            }
-        }
-
-        return sourceObject;
-    }
-
+    utils: {},
+    /**
+     * @namespace
+     */
+    validators: {}
 };
