@@ -76,7 +76,7 @@ module.exports = function (grunt) {
                     "<%= banner %>",
                     " */",
                     "\n",
-                    "\"use strict;\"",
+                    "\"use strict\";",
                     "\n\n"
                 ].join("\n"),
                 separator: "\n\n",
@@ -92,13 +92,30 @@ module.exports = function (grunt) {
                     .concat(modules.forms),
                 dest: "dist/<%= pkg.name %>.js"
             }
+        },
+
+        uglify: {
+            options: {
+                banner: [
+                    "/*!",
+                    "<%= banner %>",
+                    " */\n"
+                ].join("\n"),
+                preserveComments: false,
+                mangle: false
+            },
+            dist: {
+                src: '<%= concat.dist.dest %>',
+                dest: 'dist/<%= pkg.name %>.min.js'
+            }
         }
 
     });
 
     grunt.loadNpmTasks('grunt-contrib-concat');
+    grunt.loadNpmTasks('grunt-contrib-uglify');
 
-    grunt.registerTask('dist', ['concat:dist']);
+    grunt.registerTask('dist', ['concat:dist', 'uglify:dist']);
     grunt.registerTask('default', ['dist']);
 
 };
