@@ -1,5 +1,5 @@
 {
-  "name": "plugin-form-validation",
+  "name": "form-validation",
   "version": "0.0.1",
   "description": "The client-side to manage and test the form validation plugin",
   "author": "Jaime Pajuelo",
@@ -23,5 +23,9 @@
   ],
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "devDependencies": {
+    "grunt": "^0.4.5",
+    "grunt-contrib-concat": "^0.5.1"
   }
 }
