@@ -69,6 +69,31 @@ module.exports = function (grunt) {
 
         pkg: grunt.file.readJSON('package.json'),
 
+        jshint: {
+            options: {
+                undef: true,
+                globalstrict: true,
+                globals: {
+                    document: true,
+                    fmval: true,
+                    HTMLElement: true,
+                    HTMLFormElement: true
+                }
+            },
+            main: {
+                src: modules.main
+            },
+            validators: {
+                src: modules.validators
+            },
+            fields: {
+                src: modules.fields
+            },
+            forms: {
+                src: modules.forms
+            }
+        },
+
         concat: {
             options: {
                 banner: [
@@ -112,10 +137,11 @@ module.exports = function (grunt) {
 
     });
 
+    grunt.loadNpmTasks('grunt-contrib-jshint');
     grunt.loadNpmTasks('grunt-contrib-concat');
     grunt.loadNpmTasks('grunt-contrib-uglify');
 
     grunt.registerTask('dist', ['concat:dist', 'uglify:dist']);
-    grunt.registerTask('default', ['dist']);
+    grunt.registerTask('default', ['jshint', 'dist']);
 
 };

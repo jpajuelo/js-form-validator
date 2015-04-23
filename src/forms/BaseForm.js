@@ -58,7 +58,7 @@ fmval.forms.BaseForm = (function () {
      */
     BaseForm.member('addField', function addField(field) {
 
-        if (!(field instanceof forms.BaseField)) {
+        if (!(field instanceof fmval.fields.BaseField)) {
             throw new TypeError("The field is not instance of BaseField.");
         }
 

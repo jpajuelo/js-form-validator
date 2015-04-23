@@ -64,8 +64,8 @@ fmval.fields.TextField = (function () {
      */
     TextField.member('setPlaceholder', function setPlaceholder(fieldPlaceholder) {
 
-        if (fieldPlaceholder != null) {
-            getControl.call(this).setAttribute('placeholder', fieldPlaceholder);
+        if (fieldPlaceholder !== null) {
+            this.getControl().setAttribute('placeholder', fieldPlaceholder);
             this.placeholder = fieldPlaceholder;
         }
 

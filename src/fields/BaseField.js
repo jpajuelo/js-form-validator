@@ -48,7 +48,7 @@ fmval.fields.BaseField = (function () {
         this.setLabel(defaultProps.label);
 
         this.name = fieldName;
-        this.validatorList = buildValidatorList(defaultOptions);
+        this.validatorList = createValidatorList(defaultOptions);
 
         this.element = null;
         this.setControl(this.createControl());
@@ -75,10 +75,22 @@ fmval.fields.BaseField = (function () {
     });
 
     /**
+     * @throws {TypeError}
+     * @returns {HTMLElement}
+     */
+    BaseField.member('getControl', function getControl() {
+        if (!(this.element instanceof HTMLElement)) {
+            throw new TypeError("The control is not instance of HTMLElement.");
+        }
+
+        return this.element;
+    });
+
+    /**
      * @returns {String}
      */
     BaseField.member('getErrorMessage', function getErrorMessage() {
-        return (this.errorMessage != null) ? this.errorMessage.message : "";
+        return (this.errorMessage !== null) ? this.errorMessage.message : "";
     });
 
     /**
@@ -86,7 +98,7 @@ fmval.fields.BaseField = (function () {
      * @returns {String}
      */
     BaseField.member('getValue', function getValue() {
-        return getControl.call(this).getAttribute('value').trim();
+        return this.getControl().getAttribute('value').trim();
     });
 
     /**
@@ -154,10 +166,10 @@ fmval.fields.BaseField = (function () {
      */
     BaseField.member('setLabel', function setLabel(fieldLabel) {
 
-        if (fieldLabel != null) {
+        if (fieldLabel !== null) {
             this.label.textContent = fieldLabel;
 
-            if (this.label.parentNode != this.fieldGroup) {
+            if (this.label.parentNode !== this.fieldGroup) {
                 this.fieldGroup.insertBefore(this.label, this.fieldGroup.firstChild);
             }
         }
@@ -171,8 +183,8 @@ fmval.fields.BaseField = (function () {
      */
     BaseField.member('setName', function setName(fieldName) {
 
-        if (fieldName != null) {
-            getControl.call(this).setAttribute('name', fieldName);
+        if (fieldName !== null) {
+            this.getControl().setAttribute('name', fieldName);
             this.name = fieldName;
         }
 
@@ -194,7 +206,7 @@ fmval.fields.BaseField = (function () {
             validatorList.push(new fmval.validators.MaxLengthValidator(options.maxLength));
         }
 
-        if (options.pattern != null) {
+        if (options.pattern !== null) {
             validatorList.push(new fmval.validators.RegexValidator(options.pattern));
         }
 
@@ -202,21 +214,13 @@ fmval.fields.BaseField = (function () {
     };
 
     var emptyControl = function emptyControl() {
-        getControl.call(this).value = "";
+        this.getControl().value = "";
 
         return this;
     };
 
-    var getControl = function getControl() {
-        if (!(this.element instanceof HTMLElement)) {
-            throw new TypeError("The control is not instance of HTMLElement.");
-        }
-
-        return this.element;
-    };
-
     var removeErrorMessage = function removeErrorMessage() {
-        if (this.errorMessage != null) {
+        if (this.errorMessage !== null) {
             this.formGroup.removeChild(this.errorMessage.element);
             this.errorMessage = null;
         }

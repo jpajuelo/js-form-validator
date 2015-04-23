@@ -30,7 +30,7 @@ fmval.utils.cloneObject = function cloneObject(sourceObject, recursiveCall) {
         recursiveCall = false;
     }
 
-    if (sourceObject == null || typeof sourceObject !== 'object') {
+    if (sourceObject === null || typeof sourceObject !== 'object') {
         return recursiveCall ? sourceObject : {};
     }
 
@@ -45,7 +45,7 @@ fmval.utils.cloneObject = function cloneObject(sourceObject, recursiveCall) {
     }
 
     for (i in sourceObject) {
-        if (sourceObject[i] != null && typeof sourceObject[i] === 'object') {
+        if (sourceObject[i] !== null && typeof sourceObject[i] === 'object') {
             cloned[i] = this.cloneObject(sourceObject[i], true);
         } else {
             cloned[i] = sourceObject[i];
