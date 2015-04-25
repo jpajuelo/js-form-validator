@@ -67,7 +67,12 @@ module.exports = function (grunt) {
             " *  limitations under the License."
         ].join("\n"),
 
-        pkg: grunt.file.readJSON('package.json'),
+        plugin: modules.main
+            .concat(modules.validators)
+            .concat(modules.fields)
+            .concat(modules.forms),
+
+        pkg: grunt.file.readJSON("package.json"),
 
         jshint: {
             options: {
@@ -80,18 +85,23 @@ module.exports = function (grunt) {
                     HTMLFormElement: true
                 }
             },
-            main: {
-                src: modules.main
+            all: "<%= plugin %>"
+        },
+
+        jasmine: {
+            options: {
+                specs: "test/**/*.spec.js",
+                vendor: [
+                    "bower_components/jquery/dist/jquery.js",
+                    "bower_components/jasmine-jquery/lib/jasmine-jquery.js"
+                ],
+                template: require('grunt-template-jasmine-istanbul'),
+                templateOptions: {
+                    coverage: "test/reports/coverage.json",
+                    report: "test/reports/coverage/html"
+                }
             },
-            validators: {
-                src: modules.validators
-            },
-            fields: {
-                src: modules.fields
-            },
-            forms: {
-                src: modules.forms
-            }
+            all: "<%= plugin %>"
         },
 
         concat: {
@@ -111,10 +121,7 @@ module.exports = function (grunt) {
                 }
             },
             dist: {
-                src: modules.main
-                    .concat(modules.validators)
-                    .concat(modules.fields)
-                    .concat(modules.forms),
+                src: "<%= plugin %>",
                 dest: "dist/<%= pkg.name %>.js"
             }
         },
@@ -138,10 +145,13 @@ module.exports = function (grunt) {
     });
 
     grunt.loadNpmTasks('grunt-contrib-jshint');
+    grunt.loadNpmTasks('grunt-contrib-jasmine');
+
     grunt.loadNpmTasks('grunt-contrib-concat');
     grunt.loadNpmTasks('grunt-contrib-uglify');
 
+    grunt.registerTask('test', ['jshint:all', 'jasmine:all']);
     grunt.registerTask('dist', ['concat:dist', 'uglify:dist']);
-    grunt.registerTask('default', ['jshint', 'dist']);
+    grunt.registerTask('default', ['test', 'dist']);
 
 };
