@@ -25,7 +25,9 @@ fmval.validators.ValidationError = (function () {
      * @param {String} message
      */
     var ValidationError = function ValidationError(message) {
-        this.parentClass.captureStackTrace(this, this.constructor);
+        if (this.parentClass.hasOwnProperty('captureStackTrace')) {
+            this.parentClass.captureStackTrace(this, this.constructor);
+        }
 
         this.message = message;
 
