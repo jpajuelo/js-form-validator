@@ -45,7 +45,7 @@ fmval.fields.BaseField = (function () {
 
         this.label = document.createElement('label');
         this.label.className = "control-label";
-        this.setLabel(defaultProps.label);
+        this._(setLabel)(defaultProps.label);
 
         this.name = fieldName;
         this.validatorList = createValidatorList(defaultOptions);
@@ -59,11 +59,21 @@ fmval.fields.BaseField = (function () {
     };
 
     /**
+     * @param {Function} privateMethod
+     * @returns {BaseField} The instance on which this method was called.
+     */
+    BaseField.member('_', function _(privateMethod) {
+        return function () {
+            return privateMethod.apply(this, Array.prototype.slice.call(arguments));
+        }.bind(this);
+    });
+
+    /**
      * @throws {TypeError}
      * @returns {BaseField} The instance on which this method was called.
      */
     BaseField.member('clean', function clean() {
-        return emptyControl.call(this).removeErrorMessage.call(this);
+        return this._(emptyControl)()._(removeErrorMessage)();
     });
 
     /**
@@ -98,7 +108,7 @@ fmval.fields.BaseField = (function () {
      * @returns {String}
      */
     BaseField.member('getValue', function getValue() {
-        return this.getControl().getAttribute('value').trim();
+        return this.getControl().value.trim();
     });
 
     /**
@@ -108,7 +118,7 @@ fmval.fields.BaseField = (function () {
     BaseField.member('hasError', function hasError() {
         var found, i, value;
 
-        value = removeErrorMessage.call(this).getValue();
+        value = this._(removeErrorMessage)().getValue();
 
         for (found = false, i = 0; !found && i < this.validatorList.length; i++) {
             try {
@@ -148,30 +158,10 @@ fmval.fields.BaseField = (function () {
     BaseField.member('setErrorMessage', function setErrorMessage(fieldError) {
 
         if (fieldError instanceof fmval.validators.ValidationError) {
-            removeErrorMessage.call(this);
+            this._(removeErrorMessage)();
 
-            if (fieldError.element.parentNode != this.fieldGroup) {
-                this.fieldGroup.appendChild(fieldError.element);
-            }
-
+            this.formGroup.appendChild(fieldError.element);
             this.errorMessage = fieldError;
-        }
-
-        return this;
-    });
-
-    /**
-     * @param {String} fieldLabel
-     * @returns {BaseField} The instance on which this method was called.
-     */
-    BaseField.member('setLabel', function setLabel(fieldLabel) {
-
-        if (fieldLabel !== null) {
-            this.label.textContent = fieldLabel;
-
-            if (this.label.parentNode !== this.fieldGroup) {
-                this.fieldGroup.insertBefore(this.label, this.fieldGroup.firstChild);
-            }
         }
 
         return this;
@@ -223,6 +213,16 @@ fmval.fields.BaseField = (function () {
         if (this.errorMessage !== null) {
             this.formGroup.removeChild(this.errorMessage.element);
             this.errorMessage = null;
+        }
+
+        return this;
+    };
+
+    var setLabel = function setLabel(fieldLabel) {
+
+        if (fieldLabel !== null) {
+            this.label.textContent = fieldLabel;
+            this.formGroup.insertBefore(this.label, this.formGroup.firstChild);
         }
 
         return this;
