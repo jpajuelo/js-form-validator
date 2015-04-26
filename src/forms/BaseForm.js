@@ -77,6 +77,8 @@ fmval.forms.BaseForm = (function () {
      * @returns {BaseForm} The instance on which this method was called.
      */
     BaseForm.member('addInitialValue', function addInitialValue(fieldName, initialValue) {
+        findField.call(this, fieldName).setInitialValue(initialValue);
+
         return this;
     });
 

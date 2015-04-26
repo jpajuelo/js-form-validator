@@ -30,6 +30,12 @@ describe("A Test Suite for API Forms", function() {
                 new fmval.fields.TextField('test1'),
                 new fmval.fields.LongTextField('test2')
             ];
+            this.fieldList2 = [
+                new fmval.fields.TextField('test1', {
+                    'initialValue': "test"
+                }),
+                new fmval.fields.LongTextField('test2')
+            ];
         });
 
         it("should throw an exception whether the HTML form do not exist", function() {
@@ -118,13 +124,34 @@ describe("A Test Suite for API Forms", function() {
             expect(form.errors.test1).toEqual("This field is being tested.");
         });
 
-        it("should build the list 1 of fields in a form with fields ", function() {
+        it("should build the list 1 of fields in a form with fields", function() {
             jasmine.getFixtures().load("form-with-fields.html");
 
             form = new fmval.forms.BaseForm("form-test", this.fieldList1);
 
             expect(form.isValid()).toBeFalsy();
             expect("test1" in form.errors).toBeTruthy();
+        });
+
+        it("should validate a list of fields with initial data", function() {
+            jasmine.getFixtures().load("form-with-no-fields.html");
+
+            form = new fmval.forms.BaseForm("form-test", this.fieldList2);
+
+            expect(form.isValid()).toBeFalsy();
+            expect("test1" in form.errors).toBeFalsy();
+            expect("test1" in form.data).toBeTruthy();
+        });
+
+        it("should add initial value to a field saved", function() {
+            jasmine.getFixtures().load("form-with-no-fields.html");
+
+            form = new fmval.forms.BaseForm("form-test", this.fieldList1);
+            form.addInitialValue('test1', "test");
+
+            expect(form.isValid()).toBeFalsy();
+            expect("test1" in form.errors).toBeFalsy();
+            expect("test1" in form.data).toBeTruthy();
         });
 
     });

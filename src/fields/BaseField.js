@@ -34,7 +34,8 @@ fmval.fields.BaseField = (function () {
         };
 
         var defaultProps = {
-            'label': null
+            'label': null,
+            'initialValue': null
         };
 
         defaultOptions = fmval.utils.updateObject(defaultOptions, options);
@@ -53,8 +54,10 @@ fmval.fields.BaseField = (function () {
         this.element = null;
         this.setControl(this.createControl());
 
-        this.errorMessage = null;
         this.initialValue = null;
+        this.setInitialValue(defaultProps.initialValue);
+
+        this.errorMessage = null;
         this.helpText = null;
     };
 
@@ -162,6 +165,20 @@ fmval.fields.BaseField = (function () {
 
             this.formGroup.appendChild(fieldError.element);
             this.errorMessage = fieldError;
+        }
+
+        return this;
+    });
+
+    /**
+     * @param {String} initialValue
+     * @returns {BaseField} The instance on which this method was called.
+     */
+    BaseField.member('setInitialValue', function setInitialValue(initialValue) {
+
+        if (initialValue !== null) {
+            this.getControl().value = initialValue;
+            this.initialValue = initialValue;
         }
 
         return this;

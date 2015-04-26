@@ -187,6 +187,14 @@ describe("A Test Suite for API Fields", function() {
             expect(field.getValue()).toEqual("");
         });
 
+        it("should create an instance with initialValue='test'", function() {
+            field = new fmval.fields.TextField("test", {
+                'initialValue': "test"
+            });
+            expect(field.initialValue).toEqual("test");
+            expect(field.hasError()).toBeFalsy();
+        });
+
     });
 
     describe("A PasswordField TestCase", function() {
