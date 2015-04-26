@@ -89,7 +89,7 @@ fmval.forms.BaseForm = (function () {
         nameList = Object.keys(this.fieldGroup);
 
         for (i = nameList.length - 1; i >= 0; i--) {
-            this.element.insertBefore(this.fieldGroup[nameList[i]], this.element.firstChild);
+            this.element.insertBefore(this.fieldGroup[nameList[i]].getControl(), this.element.firstChild);
         }
 
         return this;
