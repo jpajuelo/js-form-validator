@@ -22,62 +22,61 @@ fmval.fields.BaseField = (function () {
 
     /**
      * @constructor
-     * @param {String} fieldName
+     * @param {String} name
      * @param {Object.<String, *>} [options]
+     * @throws {TypeError}
      */
-    var BaseField = function BaseField(fieldName, options) {
-        var defaultOptions = {
+    var BaseField = function BaseField(name, options) {
+        var defaults = {
             'maxLength': 1024,
             'minLength': 0,
             'pattern': null,
             'required': true
         };
 
-        var defaultProps = {
+        var properties = {
             'label': null,
             'initialValue': null
         };
 
-        defaultOptions = fmval.utils.updateObject(defaultOptions, options);
-        defaultProps = fmval.utils.updateObject(defaultProps, options);
+        defaults = fmval.utils.updateObject(defaults, options);
+        properties = fmval.utils.updateObject(properties, options);
 
         this.formGroup = document.createElement('div');
         this.formGroup.className = "form-group";
 
-        this.label = document.createElement('label');
-        this.label.className = "control-label";
-        this._(setLabel)(defaultProps.label);
-
-        this.name = fieldName;
-        this.validatorList = createValidatorList(defaultOptions);
-
-        this.element = null;
-        this.setControl(this.createControl());
-
-        this.initialValue = null;
-        this.setInitialValue(defaultProps.initialValue);
-
-        this.errorMessage = null;
+        this.error = null;
         this.helpText = null;
+
+        this._(buildDefaultControl)();
+        this._(setName)(name);
+        this.setInitialValue(properties.initialValue);
+
+        this._(setValidators)(defaults);
+        this._(setLabel)(properties.label);
     };
 
     /**
-     * @param {Function} privateMethod
-     * @returns {BaseField} The instance on which this method was called.
+     * @param {Function} privateMember
+     * @returns {Function}
      */
-    BaseField.member('_', function _(privateMethod) {
+    BaseField.member('_', function _(privateMember) {
         return function () {
-            return privateMethod.apply(this, Array.prototype.slice.call(arguments));
+            return privateMember.apply(this, Array.prototype.slice.call(arguments));
         }.bind(this);
     });
 
     /**
-     * @throws {TypeError}
      * @returns {BaseField} The instance on which this method was called.
      */
     BaseField.member('clean', function clean() {
-        return this._(emptyControl)()._(removeErrorMessage)();
+        return this.setInitialValue(this.initialValue)._(removeError)();
     });
+
+    /**
+     * @type {Function}
+     */
+    BaseField.member('constructor', BaseField);
 
     /**
      * @abstract
@@ -89,29 +88,21 @@ fmval.fields.BaseField = (function () {
 
     /**
      * @throws {TypeError}
-     * @returns {HTMLElement}
-     */
-    BaseField.member('getControl', function getControl() {
-        if (!(this.element instanceof HTMLElement)) {
-            throw new TypeError("The control is not instance of HTMLElement.");
-        }
-
-        return this.element;
-    });
-
-    /**
      * @returns {String}
      */
     BaseField.member('getErrorMessage', function getErrorMessage() {
-        return (this.errorMessage !== null) ? this.errorMessage.message : "";
+        if (!(this.error instanceof fmval.validators.ValidationError)) {
+            throw new TypeError("The property 'error' must be an instance of ValidationError.");
+        }
+
+        return this.error.message;
     });
 
     /**
-     * @throws {TypeError}
      * @returns {String}
      */
     BaseField.member('getValue', function getValue() {
-        return this.getControl().value.trim();
+        return this.element.value.trim();
     });
 
     /**
@@ -121,13 +112,13 @@ fmval.fields.BaseField = (function () {
     BaseField.member('hasError', function hasError() {
         var found, i, value;
 
-        value = this._(removeErrorMessage)().getValue();
+        value = this._(removeError)().getValue();
 
-        for (found = false, i = 0; !found && i < this.validatorList.length; i++) {
+        for (found = false, i = 0; !found && i < this.validators.length; i++) {
             try {
-                this.validatorList[i].validate(value);
+                this.validators[i].run(value);
             } catch (e) {
-                this.setErrorMessage(e);
+                this.setError(e);
                 found = true;
             }
         }
@@ -136,114 +127,150 @@ fmval.fields.BaseField = (function () {
     });
 
     /**
-     * @param {ValidationError} fieldControl
+     * @param {HTMLElement} control
+     * @throws {TypeError}
      * @returns {BaseField} The instance on which this method was called.
      */
-    BaseField.member('setControl', function setControl(fieldControl) {
+    BaseField.member('setControl', function setControl(control) {
 
-        if (fieldControl instanceof HTMLElement) {
-
-            fieldControl.addEventListener('input', function (event) {
-                this.hasError();
-            }.bind(this));
-
-            this.element = fieldControl;
-            this.setName(this.name);
+        if (!(control instanceof this.element.constructor)) {
+            throw new TypeError(fmval.utils.formatString("The property 'element' must be an instance of %(name)s.", {
+                'name': this.element.constructor.name
+            }));
         }
+
+        this.element = control;
+        this._(setName)(this.name);
+        this.setInitialValue(this.initialValue);
 
         return this;
     });
 
     /**
-     * @param {ValidationError} fieldError
+     * @param {ValidationError} error
+     * @throws {TypeError}
      * @returns {BaseField} The instance on which this method was called.
      */
-    BaseField.member('setErrorMessage', function setErrorMessage(fieldError) {
+    BaseField.member('setError', function setError(error) {
 
-        if (fieldError instanceof fmval.validators.ValidationError) {
-            this._(removeErrorMessage)();
-
-            this.formGroup.appendChild(fieldError.element);
-            this.errorMessage = fieldError;
+        if (!(error instanceof fmval.validators.ValidationError)) {
+            throw new TypeError("The property 'error' must be an instance of ValidationError.");
         }
+
+        this._(removeError)();
+        this.formGroup.appendChild(error.element);
+        this.error = error;
 
         return this;
     });
 
     /**
      * @param {String} initialValue
+     * @throws {TypeError}
      * @returns {BaseField} The instance on which this method was called.
      */
     BaseField.member('setInitialValue', function setInitialValue(initialValue) {
 
-        if (initialValue !== null) {
-            this.getControl().value = initialValue;
+        if (initialValue !== null && typeof initialValue !== 'string') {
+            throw new TypeError("The property 'initialValue' must be a string or null.");
+        }
+
+        if (initialValue !== null && initialValue.length > 0) {
+            this.element.value = initialValue;
             this.initialValue = initialValue;
+        } else {
+            this.element.value = "";
+            this.initialValue = null;
         }
 
         return this;
     });
 
-    /**
-     * @throws {TypeError}
-     * @returns {BaseField} The instance on which this method was called.
-     */
-    BaseField.member('setName', function setName(fieldName) {
 
-        if (fieldName !== null) {
-            this.getControl().setAttribute('name', fieldName);
-            this.name = fieldName;
+    var buildDefaultControl = function buildDefaultControl() {
+
+        this.element = this.createControl();
+
+        if (!(this.element instanceof HTMLElement)) {
+            throw new TypeError("The property 'element' must be an instance of HTMLElement.");
+        }
+
+        this.element.className = fmval.getOption('controlClass');
+        this.formGroup.appendChild(this.element);
+
+        return this;
+    };
+
+    var removeError = function removeError() {
+        if (this.error instanceof fmval.validators.ValidationError) {
+            this.formGroup.removeChild(this.error.element);
+        }
+
+        this.error = null;
+
+        return this;
+    };
+
+    var setLabel = function setLabel(label) {
+
+        if (label !== null && typeof label !== 'string') {
+            throw new TypeError("The property 'label' must be a string or null.");
+        }
+
+        if (label !== null && label.length > 0) {
+            this.label = document.createElement('label');
+
+            this.label.className = fmval.getOption('labelClass');
+            this.label.textContent = label;
+            this.label.setAttribute('for', this.element.id);
+
+            this.formGroup.insertBefore(this.label, this.element);
+        } else {
+            this.label = null;
         }
 
         return this;
-    });
+    };
 
-    var createValidatorList = function createValidatorList(options) {
-        var validatorList = [];
+    var setName = function setName(name) {
+
+        if (typeof name !== 'string' || !name.length) {
+            throw new TypeError("The property 'name' must be a not empty string.");
+        }
+
+        this.element.name = name;
+        this.name = name;
+
+        this.element.id = fmval.utils.formatString(fmval.getOption('controlId'), {
+            'name': name
+        });
+
+        return this;
+    };
+
+    var setValidators = function setValidators(options) {
+
+        this.validators = [];
 
         if (options.required) {
-            validatorList.push(new fmval.validators.RequiredValidator());
+            this.validators.push(new fmval.validators.RequiredValidator());
         }
 
         if (options.minLength > 0) {
-            validatorList.push(new fmval.validators.MinLengthValidator(options.minLength));
+            this.validators.push(new fmval.validators.MinLengthValidator(options.minLength));
         }
 
         if (options.maxLength > options.minLength) {
-            validatorList.push(new fmval.validators.MaxLengthValidator(options.maxLength));
+            this.validators.push(new fmval.validators.MaxLengthValidator(options.maxLength));
         }
 
         if (options.pattern !== null) {
-            validatorList.push(new fmval.validators.RegexValidator(options.pattern));
-        }
-
-        return validatorList;
-    };
-
-    var emptyControl = function emptyControl() {
-        this.getControl().value = "";
-
-        return this;
-    };
-
-    var removeErrorMessage = function removeErrorMessage() {
-        if (this.errorMessage !== null) {
-            this.formGroup.removeChild(this.errorMessage.element);
-            this.errorMessage = null;
+            this.validators.push(new fmval.validators.RegexValidator(options.pattern));
         }
 
         return this;
     };
 
-    var setLabel = function setLabel(fieldLabel) {
-
-        if (fieldLabel !== null) {
-            this.label.textContent = fieldLabel;
-            this.formGroup.insertBefore(this.label, this.formGroup.firstChild);
-        }
-
-        return this;
-    };
 
     return BaseField;
 

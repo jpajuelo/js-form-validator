@@ -21,29 +21,28 @@
 fmval.fields.LongTextField = (function () {
 
     /**
-     * @constructor
      * @extends {BaseField}
-     * @param {String} fieldName
+     *
+     * @constructor
+     * @param {String} name
      * @param {Object.<String, *>} [options]
+     * @throws {TypeError}
      */
-    var LongTextField = function LongTextField(fieldName, options) {
-        this.callParent(fieldName, options);
+    var LongTextField = function LongTextField(name, options) {
+        this.callParent(name, options);
     };
 
     LongTextField.inherit(fmval.fields.BaseField);
 
     /**
      * @override
+     *
      * @returns {HTMLElement}
      */
     LongTextField.member('createControl', function createControl() {
-        var element;
-
-        element = document.createElement('textarea');
-        element.className = "form-control";
-
-        return element;
+        return document.createElement('textarea');
     });
+
 
     return LongTextField;
 

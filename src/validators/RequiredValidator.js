@@ -21,34 +21,32 @@
 fmval.validators.RequiredValidator = (function () {
 
     /**
-     * @constructor
      * @extends {BaseValidator}
+     *
+     * @constructor
      * @param {Object.<String, *>} [options]
      */
     var RequiredValidator = function RequiredValidator(options) {
-        var defaultOptions = {
+        var properties = {
             'code': "required",
             'message': "This field is required."
         };
 
-        this.callParent(fmval.utils.updateObject(defaultOptions, options));
+        this.callParent(fmval.utils.updateObject(properties, options));
     };
 
     RequiredValidator.inherit(fmval.validators.BaseValidator);
 
     /**
      * @override
-     * @param {String} fieldValue
-     * @throws {ValidationError}
-     * @returns {RequiredValidator} The instance on which this method was called.
+     *
+     * @param {String} value
+     * @returns {Boolean}
      */
-    RequiredValidator.member('validate', function validate(fieldValue) {
-        if (!fieldValue.length) {
-            throw new fmval.validators.ValidationError(this.message);
-        }
-
-        return this;
+    RequiredValidator.member('tester', function tester(value) {
+        return value.length > 0;
     });
+
 
     return RequiredValidator;
 

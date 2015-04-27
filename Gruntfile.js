@@ -24,7 +24,8 @@ module.exports = function (grunt) {
 
         main: [
             "src/core.js",
-            "src/utils.js"
+            "src/utils.js",
+            "src/settings.js"
         ],
 
         validators: [

@@ -29,11 +29,10 @@ fmval.validators.ValidationError = (function () {
             this.parentClass.captureStackTrace(this, this.constructor);
         }
 
-        this.message = message;
-
         this.element = document.createElement('p');
-        this.element.className = "control-error";
-        this.element.textContent = message;
+        this.element.className = fmval.getOption('errorClass');
+
+        setMessage.call(this, message);
     };
 
     ValidationError.inherit(Error);
@@ -42,6 +41,19 @@ fmval.validators.ValidationError = (function () {
      * @type {String}
      */
     ValidationError.member('name', "ValidationError");
+
+
+    var setMessage = function setMessage(message) {
+        if (typeof message !== 'string' || !message.length) {
+            throw new TypeError("The property 'message' must be a not empty string.");
+        }
+
+        this.message = message;
+        this.element.textContent = message;
+
+        return this;
+    };
+
 
     return ValidationError;
 

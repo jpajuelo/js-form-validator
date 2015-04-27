@@ -22,17 +22,17 @@ fmval.forms.BaseForm = (function () {
 
     /**
      * @constructor
-     * @param {String} formName
-     * @param {Array.<BaseField>} fieldList
+     * @param {String} name
+     * @param {Array.<BaseField>} fields
      */
-    var BaseForm = function BaseForm(formName, fieldList) {
+    var BaseForm = function BaseForm(name, fields) {
         var i;
 
-        this.element = findFormElement(formName);
-        this.fieldGroup = {};
+        this.element = findFormElement(name);
+        this.fields = {};
 
-        for (i = 0; i < fieldList.length; i++) {
-            this.addField(fieldList[i]);
+        for (i = 0; i < fields.length; i++) {
+            this.addField(fields[i]);
         }
 
         this.data = {};
@@ -40,16 +40,13 @@ fmval.forms.BaseForm = (function () {
     };
 
     /**
-     * @param {String} fieldName
-     * @param {ValidationError} errorMessage
-     * @returns {BaseForm} The instance on which this method was called.
+     * @param {Function} privateMember
+     * @returns {Function}
      */
-    BaseForm.member('addError', function addError(fieldName, errorMessage) {
-
-        findField.call(this, fieldName).setErrorMessage(errorMessage);
-        addFieldError.call(this, fieldName);
-
-        return this;
+    BaseForm.member('_', function _(privateMember) {
+        return function () {
+            return privateMember.apply(this, Array.prototype.slice.call(arguments));
+        }.bind(this);
     });
 
     /**
@@ -59,25 +56,14 @@ fmval.forms.BaseForm = (function () {
     BaseForm.member('addField', function addField(field) {
 
         if (!(field instanceof fmval.fields.BaseField)) {
-            throw new TypeError("The field is not instance of BaseField.");
+            throw new TypeError("The argument 'field' must be an instance of BaseField.");
         }
 
         if (field.name in this.element.elements) {
             field.setControl(this.element.elements[field.name]);
         }
 
-        this.fieldGroup[field.name] = field;
-
-        return this;
-    });
-
-    /**
-     * @param {String} fieldName
-     * @param {String} initialValue
-     * @returns {BaseForm} The instance on which this method was called.
-     */
-    BaseForm.member('addInitialValue', function addInitialValue(fieldName, initialValue) {
-        findField.call(this, fieldName).setInitialValue(initialValue);
+        this.fields[field.name] = field;
 
         return this;
     });
@@ -86,13 +72,37 @@ fmval.forms.BaseForm = (function () {
      * @returns {BaseForm} The instance on which this method was called.
      */
     BaseForm.member('build', function build() {
-        var i, nameList;
+        var i, names;
 
-        nameList = Object.keys(this.fieldGroup);
+        names = Object.keys(this.fields);
 
-        for (i = nameList.length - 1; i >= 0; i--) {
-            this.element.insertBefore(this.fieldGroup[nameList[i]].getControl(), this.element.firstChild);
+        for (i = names.length - 1; i >= 0; i--) {
+            this.element.insertBefore(this.fields[names[i]].element, this.element.firstChild);
         }
+
+        return this;
+    });
+
+    /**
+     * @param {String} fieldName
+     * @param {String} errorMessage
+     * @returns {BaseForm} The instance on which this method was called.
+     */
+    BaseForm.member('setErrorMessage', function setErrorMessage(name, errorMessage) {
+
+        this._(findField)(name).setError(new fmval.validators.ValidationError(errorMessage));
+
+        return this._(addFieldError)(name);
+    });
+
+    /**
+     * @param {String} fieldName
+     * @param {String} initialValue
+     * @returns {BaseForm} The instance on which this method was called.
+     */
+    BaseForm.member('setInitialValue', function setInitialValue(name, initialValue) {
+
+        this._(findField)(name).setInitialValue(initialValue);
 
         return this;
     });
@@ -101,28 +111,33 @@ fmval.forms.BaseForm = (function () {
      * @returns {BaseForm} The instance on which this method was called.
      */
     BaseForm.member('cleanAll', function cleanAll() {
-        var fieldName;
+        var name;
 
-        for (fieldName in this.fieldGroup) {
-            cleanField.call(this, fieldName);
+        for (name in this.fields) {
+            this._(cleanField)(name);
         }
 
         return this;
     });
 
     /**
-     * @param {String} fieldName
+     * @type {Function}
+     */
+    BaseForm.member('constructor', BaseForm);
+
+    /**
+     * @param {String} name
      * @returns {Boolean}
      */
-    BaseForm.member('hasError', function hasError(fieldName) {
+    BaseForm.member('hasError', function hasError(name) {
         var errorFound;
 
-        errorFound = findField.call(this, fieldName).hasError();
+        errorFound = this._(findField)(name).hasError();
 
         if (errorFound) {
-            addFieldError.call(this, fieldName);
+            this._(addFieldError)(name);
         } else {
-            addFieldValue.call(this, fieldName);
+            this._(addFieldValue)(name);
         }
 
         return errorFound;
@@ -132,62 +147,62 @@ fmval.forms.BaseForm = (function () {
      * @returns {Boolean}
      */
     BaseForm.member('isValid', function isValid() {
-        var fieldName;
+        var name;
 
-        for (fieldName in this.fieldGroup) {
-            this.hasError(fieldName);
+        for (name in this.fields) {
+            this.hasError(name);
         }
 
         return !Object.keys(this.errors).length;
     });
 
 
-    var addFieldError = function addFieldError(fieldName) {
+    var addFieldError = function addFieldError(name) {
 
-        this.errors[fieldName] = this.fieldGroup[fieldName].getErrorMessage();
-        delete this.data[fieldName];
-
-        return this;
-    };
-
-    var addFieldValue = function addFieldValue(fieldName) {
-
-        this.data[fieldName] = this.fieldGroup[fieldName].getValue();
-        delete this.errors[fieldName];
+        this.errors[name] = this.fields[name].getErrorMessage();
+        delete this.data[name];
 
         return this;
     };
 
-    var cleanField = function cleanField(fieldName) {
+    var addFieldValue = function addFieldValue(name) {
 
-        this.fieldGroup[fieldName].clean();
-
-        delete this.data[fieldName];
-        delete this.errors[fieldName];
+        this.data[name] = this.fields[name].getValue();
+        delete this.errors[name];
 
         return this;
     };
 
-    var findField = function findField(fieldName) {
+    var cleanField = function cleanField(name) {
 
-        if (!(fieldName in this.fieldGroup)) {
-            throw new TypeError(fmval.utils.formatString("The field %(name)s is not found.", {
-                'name': fieldName
+        this.fields[name].clean();
+
+        delete this.data[name];
+        delete this.errors[name];
+
+        return this;
+    };
+
+    var findField = function findField(name) {
+
+        if (!(name in this.fields)) {
+            throw new TypeError(fmval.utils.formatString("The field '%(name)s' is not found.", {
+                'name': name
             }));
         }
 
-        return this.fieldGroup[fieldName];
+        return this.fields[name];
     };
 
-    var findFormElement = function findFormElement(formName) {
+    var findFormElement = function findFormElement(name) {
 
-        if (!(document.forms[formName] instanceof HTMLFormElement)) {
-            throw new TypeError(fmval.utils.formatString("The form %(name)s is not instance of HTMLFormElement.", {
-                'name': formName
+        if (!(document.forms[name] instanceof HTMLFormElement)) {
+            throw new TypeError(fmval.utils.formatString("The form '%(name)s' must be an instance of HTMLFormElement.", {
+                'name': name
             }));
         }
 
-        return document.forms[formName];
+        return document.forms[name];
     };
 
     return BaseForm;

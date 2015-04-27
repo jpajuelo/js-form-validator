@@ -21,19 +21,22 @@
 fmval.fields.PasswordField = (function () {
 
     /**
-     * @constructor
      * @extends {TextField}
-     * @param {String} fieldName
+     *
+     * @constructor
+     * @param {String} name
      * @param {Object.<String, *>} [options]
+     * @throws {TypeError}
      */
-    var PasswordField = function PasswordField(fieldName, options) {
+    var PasswordField = function PasswordField(name, options) {
         options = fmval.utils.updateObject(options);
         options.type = "password";
 
-        this.callParent(fieldName, options);
+        this.callParent(name, options);
     };
 
     PasswordField.inherit(fmval.fields.TextField);
+
 
     return PasswordField;
 

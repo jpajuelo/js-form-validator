@@ -21,41 +21,38 @@
 fmval.validators.MaxLengthValidator = (function () {
 
     /**
-     * @constructor
      * @extends {BaseValidator}
+     *
+     * @constructor
      * @param {Number} maxLength
      * @param {Object.<String, *>} [options]
      */
     var MaxLengthValidator = function MaxLengthValidator(maxLength, options) {
-        var defaultOptions = {
+        var properties = {
             'code': "max_length",
             'message': "This field must not exceed %(maxLength)s chars."
         };
 
-        defaultOptions.message = fmval.utils.formatString(defaultOptions.message, {
+        properties.message = fmval.utils.formatString(properties.message, {
             'maxLength': maxLength
         });
 
+        this.callParent(fmval.utils.updateObject(properties, options));
         this.maxLength = maxLength;
-
-        this.callParent(fmval.utils.updateObject(defaultOptions, options));
     };
 
     MaxLengthValidator.inherit(fmval.validators.BaseValidator);
 
     /**
      * @override
-     * @param {String} fieldValue
-     * @throws {ValidationError}
-     * @returns {MaxLengthValidator} The instance on which this method was called.
+     *
+     * @param {String} value
+     * @returns {Boolean}
      */
-    MaxLengthValidator.member('validate', function validate(fieldValue) {
-        if (fieldValue.length > this.maxLength) {
-            throw new fmval.validators.ValidationError(this.message);
-        }
-
-        return this;
+    MaxLengthValidator.member('tester', function tester(value) {
+        return value.length <= this.maxLength;
     });
+
 
     return MaxLengthValidator;
 

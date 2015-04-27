@@ -50,7 +50,12 @@ Function.prototype.inherit = function inherit(parentClass) {
         }
 
         callCounter++;
-        currentClass.apply(this, Array.prototype.slice.call(arguments));
+        try {
+            currentClass.apply(this, Array.prototype.slice.call(arguments));
+        } catch (e) {
+            callCounter = 0;
+            throw e;
+        }
 
         callCounter = 0;
 
@@ -85,6 +90,10 @@ var fmval = {
      * @namespace
      */
     forms: {},
+    /**
+     * @namespace
+     */
+    settings: {},
     /**
      * @namespace
      */

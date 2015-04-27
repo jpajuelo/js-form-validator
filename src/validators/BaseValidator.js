@@ -25,24 +25,76 @@ fmval.validators.BaseValidator = (function () {
      * @param {Object.<String, *>} [options]
      */
     var BaseValidator = function BaseValidator(options) {
-        var defaultOptions = {
+        var properties = {
             'code': null,
             'message': null
         };
 
-        defaultOptions = fmval.utils.updateObject(defaultOptions, options);
+        properties = fmval.utils.updateObject(properties, options);
 
-        this.code = defaultOptions.code;
-        this.message = defaultOptions.message;
+        this._(setCode)(properties.code);
+        this._(setMessage)(properties.message);
     };
 
     /**
-     * @param {String} fieldValue
+     * @param {Function} privateMember
+     * @returns {Function}
+     */
+    BaseValidator.member('_', function _(privateMember) {
+        return function () {
+            return privateMember.apply(this, Array.prototype.slice.call(arguments));
+        }.bind(this);
+    });
+
+    /**
+     * @type {Function}
+     */
+    BaseValidator.member('constructor', BaseValidator);
+
+    /**
+     * @param {String} value
+     * @throws {ValidationError}
      * @returns {BaseValidator} The instance on which this method was called.
      */
-    BaseValidator.member('validate', function validate(fieldValue) {
+    BaseValidator.member('run', function run(value) {
+        if (!this.tester(value)) {
+            throw new fmval.validators.ValidationError(this.message);
+        }
+
         return this;
     });
+
+    /**
+     * @param {String} value
+     * @returns {Boolean}
+     */
+    BaseValidator.member('tester', function tester(value) {
+        return true;
+    });
+
+
+    var setCode = function setCode(code) {
+
+        if (typeof code !== 'string' || !code.length) {
+            throw new TypeError("The property 'code' must be a not empty string.");
+        }
+
+        this.code = code;
+
+        return this;
+    };
+
+    var setMessage = function setMessage(message) {
+
+        if (typeof message !== 'string' || !message.length) {
+            throw new TypeError("The property 'message' must be a not empty string.");
+        }
+
+        this.message = message;
+
+        return this;
+    };
+
 
     return BaseValidator;
 

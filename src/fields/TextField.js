@@ -21,56 +21,85 @@
 fmval.fields.TextField = (function () {
 
     /**
-     * @constructor
      * @extends {BaseField}
-     * @param {String} fieldName
+     *
+     * @constructor
+     * @param {String} name
      * @param {Object.<String, *>} [options]
+     * @throws {TypeError}
      */
-    var TextField = function TextField(fieldName, options) {
-        var defaultOptions = {
+    var TextField = function TextField(name, options) {
+        var properties = {
             'placeholder': null,
             'type': "text"
         };
 
-        defaultOptions = fmval.utils.updateObject(defaultOptions, options);
+        properties = fmval.utils.updateObject(properties, options);
+        this.callParent(name, options);
 
-        this.type = defaultOptions.type;
-
-        this.callParent(fieldName, options);
-
-        this.placeholder = null;
-        this.setPlaceholder(defaultOptions.placeholder);
+        this._(setType)(properties.type);
+        this.setPlaceholder(properties.placeholder);
     };
 
     TextField.inherit(fmval.fields.BaseField);
 
     /**
      * @override
-     * @returns {HTMLElement}
+     *
+     * @returns {HTMLInputElement}
      */
     TextField.member('createControl', function createControl() {
-        var element;
-
-        element = document.createElement('input');
-        element.className = "form-control";
-        element.type = this.type;
-
-        return element;
+        return document.createElement('input');
     });
 
     /**
-     * @throws {TypeError}
+     * @override
+     *
+     * @param {HTMLInputElement} control
      * @returns {TextField} The instance on which this method was called.
      */
-    TextField.member('setPlaceholder', function setPlaceholder(fieldPlaceholder) {
+    TextField.member('setControl', function setControl(control) {
 
-        if (fieldPlaceholder !== null) {
-            this.getControl().setAttribute('placeholder', fieldPlaceholder);
-            this.placeholder = fieldPlaceholder;
+        this.parentClass.prototype.setControl.call(this, control);
+        this._(setType)(this.type);
+
+        return this;
+    });
+
+    /**
+     * @param {String} placeholder
+     * @returns {TextField} The instance on which this method was called.
+     */
+    TextField.member('setPlaceholder', function setPlaceholder(placeholder) {
+
+        if (placeholder !== null && typeof placeholder !== 'string') {
+            throw new TypeError("The property 'placeholder' must be a string or null.");
+        }
+
+        if (placeholder === null || !placeholder.length) {
+            this.element.placeholder = "";
+            this.placeholder = null;
+        } else {
+            this.element.placeholder = placeholder;
+            this.placeholder = placeholder;
         }
 
         return this;
     });
+
+
+    var setType = function setType(type) {
+
+        if (typeof type !== 'string' || !type.length) {
+            throw new TypeError("The property 'type' must be a not empty string.");
+        }
+
+        this.element.type = type;
+        this.type = type;
+
+        return this;
+    };
+
 
     return TextField;
 

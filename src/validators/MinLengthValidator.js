@@ -21,41 +21,38 @@
 fmval.validators.MinLengthValidator = (function () {
 
     /**
-     * @constructor
      * @extends {BaseValidator}
+     *
+     * @constructor
      * @param {Number} minLength
      * @param {Object.<String, *>} [options]
      */
     var MinLengthValidator = function MinLengthValidator(minLength, options) {
-        var defaultOptions = {
+        var properties = {
             'code': "min_length",
             'message': "This field must contain at least %(minLength)s chars."
         };
 
-        defaultOptions.message = fmval.utils.formatString(defaultOptions.message, {
+        properties.message = fmval.utils.formatString(properties.message, {
             'minLength': minLength
         });
 
+        this.callParent(fmval.utils.updateObject(properties, options));
         this.minLength = minLength;
-
-        this.callParent(fmval.utils.updateObject(defaultOptions, options));
     };
 
     MinLengthValidator.inherit(fmval.validators.BaseValidator);
 
     /**
      * @override
-     * @param {String} fieldValue
-     * @throws {ValidationError}
-     * @returns {MinLengthValidator} The instance on which this method was called.
+     *
+     * @param {String} value
+     * @returns {Boolean}
      */
-    MinLengthValidator.member('validate', function validate(fieldValue) {
-        if (fieldValue.length < this.minLength) {
-            throw new fmval.validators.ValidationError(this.message);
-        }
-
-        return this;
+    MinLengthValidator.member('tester', function tester(value) {
+        return value.length >= this.minLength;
     });
+
 
     return MinLengthValidator;
 
