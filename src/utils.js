@@ -31,7 +31,7 @@ fmval.utils.cloneObject = function cloneObject(sourceObject, recursiveCall) {
     }
 
     if (sourceObject === null || typeof sourceObject !== 'object') {
-        return recursiveCall ? sourceObject : {};
+        return {};
     }
 
     if (sourceObject instanceof RegExp) {
