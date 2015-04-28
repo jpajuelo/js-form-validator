@@ -77,10 +77,10 @@ fmval.fields.TextField = (function () {
         }
 
         if (placeholder === null || !placeholder.length) {
-            this.element.placeholder = "";
+            this.element.removeAttribute('placeholder');
             this.placeholder = null;
         } else {
-            this.element.placeholder = placeholder;
+            this.element.setAttribute('placeholder', placeholder);
             this.placeholder = placeholder;
         }
 
@@ -89,10 +89,6 @@ fmval.fields.TextField = (function () {
 
 
     var setType = function setType(type) {
-
-        if (typeof type !== 'string' || !type.length) {
-            throw new TypeError("The property 'type' must be a not empty string.");
-        }
 
         this.element.type = type;
         this.type = type;

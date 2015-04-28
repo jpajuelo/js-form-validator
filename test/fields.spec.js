@@ -141,15 +141,13 @@ describe("A Test Suite for API Fields", function() {
             expect(anonymousMethod).toThrowError(TypeError);
         });
 
-        it("should throw an exception whether the 'type' given is null", function() {
+        it("should keep the default type whether the 'type' given is null", function() {
 
-            anonymousMethod = function anonymousMethod() {
-                field = new fmval.fields.TextField("test", {
-                    'type': null
-                });
-            };
+            field = new fmval.fields.TextField("test", {
+                'type': null
+            });
 
-            expect(anonymousMethod).toThrowError(TypeError, "The property 'type' must be a not empty string.");
+            expect(field.type).toEqual("text");
         });
 
         it("should throw an exception whether the 'placeholder' given is not null or a not empty string", function() {

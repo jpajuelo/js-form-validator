@@ -20,33 +20,28 @@
 
 /**
  * @param {Object} sourceObject
- * @param {Boolean} recursiveCall
  * @returns {Object} The sourceObject cloned.
  */
-fmval.utils.cloneObject = function cloneObject(sourceObject, recursiveCall) {
+fmval.utils.cloneObject = function cloneObject(sourceObject) {
     var cloned, i;
 
-    if (typeof recursiveCall !== 'boolean') {
-        recursiveCall = false;
+    cloned = {};
+
+    if (sourceObject === null || typeof sourceObject === 'undefined') {
+        return cloned;
     }
 
-    if (sourceObject === null || typeof sourceObject !== 'object') {
-        return {};
-    }
-
-    if (sourceObject instanceof RegExp) {
-        return sourceObject;
-    }
-
-    if (Array.isArray(sourceObject)) {
-        cloned = [];
-    } else {
-        cloned = {};
+    if (sourceObject.constructor !== Object) {
+        throw new TypeError(this.formatString("The argument '%(name)s' must be a direct instance of Object.", {
+            'name': sourceObject.constructor.name
+        }));
     }
 
     for (i in sourceObject) {
-        if (sourceObject[i] !== null && typeof sourceObject[i] === 'object') {
-            cloned[i] = this.cloneObject(sourceObject[i], true);
+        if (typeof sourceObject[i] === 'undefined' || sourceObject[i] === null) {
+            cloned[i] = null;
+        } else if (sourceObject[i].constructor === Object) {
+            cloned[i] = this.cloneObject(sourceObject[i]);
         } else {
             cloned[i] = sourceObject[i];
         }
@@ -83,8 +78,21 @@ fmval.utils.updateObject = function updateObject(sourceObject, targetObject) {
     sourceObject = this.cloneObject(sourceObject);
     targetObject = this.cloneObject(targetObject);
 
-    for (name in sourceObject) {
-        if (name in targetObject) {
+    for (name in targetObject) {
+        if (targetObject[name] === null) {
+            if ((name in sourceObject) && sourceObject[name] !== null) {
+                continue;
+            }
+            sourceObject[name] = null;
+        } else if (targetObject[name].constructor === Object) {
+            if ((name in sourceObject) && sourceObject[name] !== null && sourceObject[name].constructor !== Object) {
+                continue;
+            }
+            sourceObject[name] = this.updateObject(sourceObject[name], targetObject[name]);
+        } else {
+            if ((name in sourceObject) && sourceObject[name] !== null && sourceObject[name].constructor !== targetObject[name].constructor) {
+                continue;
+            }
             sourceObject[name] = targetObject[name];
         }
     }
