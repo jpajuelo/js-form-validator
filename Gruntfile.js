@@ -40,8 +40,9 @@ module.exports = function (grunt) {
         fields: [
             "src/fields/BaseField.js",
             "src/fields/TextField.js",
-            "src/fields/LongTextField.js",
-            "src/fields/PasswordField.js"
+            "src/fields/PasswordField.js",
+            "src/fields/EmailField.js",
+            "src/fields/LongTextField.js"
         ],
 
         forms: [

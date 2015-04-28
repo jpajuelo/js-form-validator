@@ -258,6 +258,29 @@ describe("A Test Suite for API Fields", function() {
 
     });
 
+    describe("A EmailField TestCase", function() {
+
+        it("should create an instance with no options successfully", function() {
+            field = new fmval.fields.EmailField("test");
+
+            expect(field instanceof fmval.fields.TextField).toBeTruthy();
+            expect(field.element).toHaveAttr('type', "text");
+        });
+
+        it("should validate a valid email address successfully", function() {
+            field = new fmval.fields.EmailField("test");
+
+            field.element.value = "test@fmval.org";
+
+            expect(field.hasError()).toBeFalsy();
+
+            field.element.value = "a@b.es";
+
+            expect(field.hasError()).toBeFalsy();
+        });
+
+    });
+
     describe("A LongTextField TestCase", function() {
 
         it("should create an instance with no options successfully", function() {
