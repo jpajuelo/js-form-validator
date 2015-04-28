@@ -34,7 +34,7 @@ fmval.validators.RegexValidator = (function () {
         };
 
         this.callParent(fmval.utils.updateObject(properties, options));
-        this.regex = new RegExp(pattern);
+        this.regex = pattern;
     };
 
     RegexValidator.inherit(fmval.validators.BaseValidator);

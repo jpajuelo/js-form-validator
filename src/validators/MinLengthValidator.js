@@ -29,7 +29,7 @@ fmval.validators.MinLengthValidator = (function () {
      */
     var MinLengthValidator = function MinLengthValidator(minLength, options) {
         var properties = {
-            'code': "min_length",
+            'code': "minlength",
             'message': "This field must contain at least %(minLength)s chars."
         };
 

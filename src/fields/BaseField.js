@@ -28,6 +28,7 @@ fmval.fields.BaseField = (function () {
      */
     var BaseField = function BaseField(name, options) {
         var defaults = {
+            'errorMessages': {},
             'maxLength': 1024,
             'minLength': 0,
             'pattern': null,
@@ -35,8 +36,8 @@ fmval.fields.BaseField = (function () {
         };
 
         var properties = {
-            'label': null,
-            'initialValue': null
+            'initialValue': null,
+            'label': null
         };
 
         defaults = fmval.utils.updateObject(defaults, options);
@@ -248,24 +249,36 @@ fmval.fields.BaseField = (function () {
         return this;
     };
 
+    var setValidator = function setValidator(validator, errorMessages) {
+
+        if (validator.code in errorMessages) {
+            validator.setMessage(errorMessages[validator.code]);
+        }
+
+        this.validators.push(validator);
+
+        return this;
+    };
+
     var setValidators = function setValidators(options) {
+        var validator;
 
         this.validators = [];
 
         if (options.required) {
-            this.validators.push(new fmval.validators.RequiredValidator());
+            this._(setValidator)(new fmval.validators.RequiredValidator(), options.errorMessages);
         }
 
         if (options.minLength > 0) {
-            this.validators.push(new fmval.validators.MinLengthValidator(options.minLength));
+            this._(setValidator)(new fmval.validators.MinLengthValidator(options.minLength), options.errorMessages);
         }
 
         if (options.maxLength > options.minLength) {
-            this.validators.push(new fmval.validators.MaxLengthValidator(options.maxLength));
+            this._(setValidator)(new fmval.validators.MaxLengthValidator(options.maxLength), options.errorMessages);
         }
 
         if (options.pattern !== null) {
-            this.validators.push(new fmval.validators.RegexValidator(options.pattern));
+            this._(setValidator)(new fmval.validators.RegexValidator(options.pattern), options.errorMessages);
         }
 
         return this;

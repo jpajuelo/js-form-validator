@@ -33,7 +33,7 @@ fmval.validators.BaseValidator = (function () {
         properties = fmval.utils.updateObject(properties, options);
 
         this._(setCode)(properties.code);
-        this._(setMessage)(properties.message);
+        this.setMessage(properties.message);
     };
 
     /**
@@ -65,6 +65,22 @@ fmval.validators.BaseValidator = (function () {
     });
 
     /**
+     * @param {String} message
+     * @throws {TypeError}
+     * @returns {BaseValidator} The instance on which this method was called.
+     */
+    BaseValidator.member('setMessage', function setMessage(message) {
+
+        if (typeof message !== 'string' || !message.length) {
+            throw new TypeError("The property 'message' must be a not empty string.");
+        }
+
+        this.message = message;
+
+        return this;
+    });
+
+    /**
      * @param {String} value
      * @returns {Boolean}
      */
@@ -80,17 +96,6 @@ fmval.validators.BaseValidator = (function () {
         }
 
         this.code = code;
-
-        return this;
-    };
-
-    var setMessage = function setMessage(message) {
-
-        if (typeof message !== 'string' || !message.length) {
-            throw new TypeError("The property 'message' must be a not empty string.");
-        }
-
-        this.message = message;
 
         return this;
     };

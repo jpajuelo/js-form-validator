@@ -134,7 +134,7 @@ describe("A Test Suite for API Validators", function() {
 
             expect(validator instanceof fmval.validators.BaseValidator).toBeTruthy();
             expect(validator.minLength).toEqual(5);
-            expect(validator.code).toEqual("min_length");
+            expect(validator.code).toEqual("minlength");
             expect(validator.message).toEqual("This field must contain at least 5 chars.");
 
             anonymousMethod = function anonymousMethod() {
@@ -164,7 +164,7 @@ describe("A Test Suite for API Validators", function() {
 
             expect(validator instanceof fmval.validators.BaseValidator).toBeTruthy();
             expect(validator.maxLength).toEqual(10);
-            expect(validator.code).toEqual("max_length");
+            expect(validator.code).toEqual("maxlength");
             expect(validator.message).toEqual("This field must not exceed 10 chars.");
 
             anonymousMethod = function anonymousMethod() {

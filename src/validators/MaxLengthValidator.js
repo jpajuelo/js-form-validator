@@ -29,7 +29,7 @@ fmval.validators.MaxLengthValidator = (function () {
      */
     var MaxLengthValidator = function MaxLengthValidator(maxLength, options) {
         var properties = {
-            'code': "max_length",
+            'code': "maxlength",
             'message': "This field must not exceed %(maxLength)s chars."
         };
 
