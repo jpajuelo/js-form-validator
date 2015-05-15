@@ -38,17 +38,27 @@
     ns.URISchemeValidator = defineClass({
 
         constructor: function URISchemeValidator(schemes, options) {
-            this.superClass(updateObject(validatorDefaults, options));
-
             this.schemes = schemes;
-            this.message = formatString(this.message, {
-                schemes: schemes.join(" | ")
-            });
+            this.superClass(updateObject(defaults, options));
         },
 
         inherit: ns.AbstractValidator,
 
         members: {
+
+            /**
+             * [addMessage description]
+             *
+             * @param {String} message [description]
+             * @returns {URISchemeValidator} The instance on which the member is called.
+             */
+            addMessage: function addMessage(message) {
+                this.message = formatString(message, {
+                    schemes: this.schemes.join(" | ")
+                });
+
+                return this;
+            },
 
             /**
              * [checkout description]
@@ -77,7 +87,7 @@
     // PRIVATE MEMBERS
     // **********************************************************************************
 
-    var validatorDefaults = {
+    var defaults = {
         message: "The URI scheme must be (%(schemes)s)."
     };
 

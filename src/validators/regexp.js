@@ -37,8 +37,8 @@
     ns.RegExpValidator = defineClass({
 
         constructor: function RegExpValidator(regexp, options) {
-            this.superClass(updateObject(validatorDefaults, options));
             this.regexp = regexp;
+            this.superClass(updateObject(defaults, options));
         },
 
         inherit: ns.AbstractValidator,
@@ -72,7 +72,7 @@
     // PRIVATE MEMBERS
     // **********************************************************************************
 
-    var validatorDefaults = {
+    var defaults = {
         message: "This field must be a valid value."
     };
 

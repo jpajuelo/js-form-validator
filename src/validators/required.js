@@ -36,7 +36,7 @@
     ns.RequiredValidator = defineClass({
 
         constructor: function RequiredValidator(options) {
-            this.superClass(updateObject(validatorDefaults, options));
+            this.superClass(updateObject(defaults, options));
         },
 
         inherit: ns.AbstractValidator,
@@ -70,7 +70,7 @@
     // PRIVATE MEMBERS
     // **********************************************************************************
 
-    var validatorDefaults = {
+    var defaults = {
         message: "This field is required."
     };
 

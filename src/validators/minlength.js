@@ -38,16 +38,27 @@
     ns.MinLengthValidator = defineClass({
 
         constructor: function MinLengthValidator(minlength, options) {
-            this.superClass(updateObject(validatorDefaults, options));
-
             this.minlength = minlength;
-            this.message   = formatString(this.message, {
-                minlength: minlength
-            });
+            this.superClass(updateObject(defaults, options));
         },
 
         inherit: ns.AbstractValidator,
+
         members: {
+
+            /**
+             * [addMessage description]
+             *
+             * @param {String} message [description]
+             * @returns {MinLengthValidator} The instance on which the member is called.
+             */
+            addMessage: function addMessage(message) {
+                this.message = formatString(message, {
+                    minlength: this.minlength
+                });
+
+                return this;
+            },
 
             /**
              * [checkout description]
@@ -76,7 +87,7 @@
     // PRIVATE MEMBERS
     // **********************************************************************************
 
-    var validatorDefaults = {
+    var defaults = {
         message: "This field must contain at least %(minlength)s chars."
     };
 

@@ -35,11 +35,22 @@
     ns.AbstractValidator = defineClass({
 
         constructor: function AbstractValidator(options) {
-            options = updateObject(validatorDefaults, options);
-            this.message = options.message;
+            this.addMessage(updateObject(defaults, options).message);
         },
 
         members: {
+
+            /**
+             * [addMessage description]
+             *
+             * @param {String} message [description]
+             * @returns {AbstractValidator} The instance on which the member is called.
+             */
+            addMessage: function addMessage(message) {
+                this.message = message;
+
+                return this;
+            },
 
             /**
              * [checkout description]
@@ -81,7 +92,7 @@
     // PRIVATE MEMBERS
     // **********************************************************************************
 
-    var validatorDefaults = {
+    var defaults = {
         message: "The error was not specified."
     };
 

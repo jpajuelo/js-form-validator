@@ -38,17 +38,27 @@
     ns.MaxLengthValidator = defineClass({
 
         constructor: function MaxLengthValidator(maxlength, options) {
-            this.superClass(updateObject(validatorDefaults, options));
-
             this.maxlength = maxlength;
-            this.message   = formatString(this.message, {
-                maxlength: maxlength
-            });
+            this.superClass(updateObject(defaults, options));
         },
 
         inherit: ns.AbstractValidator,
 
         members: {
+
+            /**
+             * [addMessage description]
+             *
+             * @param {String} message [description]
+             * @returns {MaxLengthValidator} The instance on which the member is called.
+             */
+            addMessage: function addMessage(message) {
+                this.message = formatString(message, {
+                    maxlength: this.maxlength
+                });
+
+                return this;
+            },
 
             /**
              * [checkout description]
@@ -77,7 +87,7 @@
     // PRIVATE MEMBERS
     // **********************************************************************************
 
-    var validatorDefaults = {
+    var defaults = {
         message: "This field must not exceed %(maxlength)s chars."
     };
 
