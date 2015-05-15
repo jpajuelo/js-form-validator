@@ -15,66 +15,74 @@
  */
 
 
-"use strict";
+(function (ns) {
 
+    "use strict";
 
-/**
- * @namespace
- */
-fmval.settings.defaults = {
+    // **********************************************************************************
+    // IMPORTS
+    // **********************************************************************************
+
+    var updateObject = plugin.utils.object.update;
+
+    // **********************************************************************************
+    // PRIVATE MEMBERS
+    // **********************************************************************************
+
+    var defaults = {
+        controlClass:  "field-control",
+        controlId:     "id_%(name)s",
+        errorClass:    "field-error",
+        errorTag:      "p",
+        fieldClass:    "form-field",
+        fieldTag:      "div",
+        helpTextClass: "field-helptext",
+        helpTextTag:   "p",
+        labelClass:    "field-label",
+        labelTag:      "label"
+    };
+
+    var locals = {};
+
+    // **********************************************************************************
+    // NAMESPACE DEFINITION
+    // **********************************************************************************
 
     /**
-     * @type {String}
+     * @namespace [description]
      */
-    controlClass: "form-control",
+    ns.settings = {
 
-    /**
-     * @type {String}
-     */
-    controlId: "id_%(name)s",
+        /**
+         * [clean description]
+         */
+        clean: function clean() {
+            locals = {};
+        },
 
-    /**
-     * @type {String}
-     */
-    errorClass: "control-error",
+        /**
+         * [get description]
+         *
+         * @param {String} name [description]
+         * @returns {String} [description]
+         */
+        get: function get(name) {
+            if (!(name in defaults)) {
+                throw new TypeError("[error description]");
+            }
 
-    /**
-     * @type {String}
-     */
-    labelClass: "control-label"
+            return name in locals ? locals[name] : defaults[name];
+        },
 
-};
+        /**
+         * [update description]
+         *
+         * @param {Object.<String, *>} options [description]
+         */
+        update: function update(options) {
+            locals = updateObject(defaults, options);
+        }
 
+    };
 
-/**
- * @namespace
- */
-fmval.settings.locals = {};
-
-
-/**
- * @param {String} name
- * @returns {String|Number}
- */
-fmval.getOption = function getOption(name) {
-    if (!(name in fmval.settings.defaults)) {
-        throw new TypeError(fmval.utils.formatString("The option '%(name)s' is not found.", {
-            'name': name
-        }));
-    }
-
-    return (name in fmval.settings.locals) ? fmval.settings.locals[name] : fmval.settings.defaults[name];
-};
-
-
-/**
- * @param {Object.<String, *>} options
- */
-fmval.updateSettings = function updateSettings(options) {
-    fmval.settings.locals = fmval.utils.updateObject(fmval.settings.defaults, options);
-};
-
-
-fmval.cleanCache = function cleanCache() {
-    fmval.settings.locals = {};
-};
+})(plugin);
