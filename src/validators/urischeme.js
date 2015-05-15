@@ -15,17 +15,13 @@
  */
 
 
-(function (ns) {
+(function (ns, utils) {
 
     "use strict";
 
-    // **********************************************************************************
-    // IMPORTS
-    // **********************************************************************************
-
-    var defineClass  = plugin.utils.inheritance.defineClass,
-        updateObject = plugin.utils.object.update,
-        formatString = plugin.utils.string.format;
+    var defineClass  = utils.inheritance.defineClass,
+        updateObject = utils.object.update,
+        formatString = utils.string.format;
 
     // **********************************************************************************
     // CLASS DEFINITION
@@ -85,4 +81,4 @@
         message: "The URI scheme must be (%(schemes)s)."
     };
 
-})(plugin.validators);
+})(plugin.validators, plugin.utils);

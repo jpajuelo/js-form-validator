@@ -15,16 +15,12 @@
  */
 
 
-(function (ns) {
+(function (ns, utils) {
 
     "use strict";
 
-    // **********************************************************************************
-    // IMPORTS
-    // **********************************************************************************
-
-    var defineClass  = plugin.utils.inheritance.defineClass,
-        updateObject = plugin.utils.object.update;
+    var defineClass  = utils.inheritance.defineClass,
+        updateObject = utils.object.update;
 
     // **********************************************************************************
     // CLASS DEFINITION
@@ -89,4 +85,4 @@
         message: "The error was not specified."
     };
 
-})(plugin.validators);
+})(plugin.validators, plugin.utils);

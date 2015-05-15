@@ -15,15 +15,11 @@
  */
 
 
-(function (ns) {
+(function (ns, utils) {
 
     "use strict";
 
-    // **********************************************************************************
-    // IMPORTS
-    // **********************************************************************************
-
-    var defineClass = plugin.utils.inheritance.defineClass,
+    var defineClass = utils.inheritance.defineClass,
         getSetting  = plugin.settings.get;
 
     // **********************************************************************************
@@ -76,4 +72,4 @@
 
     });
 
-})(plugin.validators);
+})(plugin.validators, plugin.utils);
