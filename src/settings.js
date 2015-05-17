@@ -15,34 +15,11 @@
  */
 
 
-(function (ns) {
+(function (ns, utils) {
 
     "use strict";
 
-    // **********************************************************************************
-    // IMPORTS
-    // **********************************************************************************
-
-    var updateObject = plugin.utils.object.update;
-
-    // **********************************************************************************
-    // PRIVATE MEMBERS
-    // **********************************************************************************
-
-    var defaults = {
-        controlClass:  "field-control",
-        controlId:     "id_%(name)s",
-        errorClass:    "field-error",
-        errorTag:      "p",
-        fieldClass:    "form-field",
-        fieldTag:      "div",
-        helpTextClass: "field-helptext",
-        helpTextTag:   "p",
-        labelClass:    "field-label",
-        labelTag:      "label"
-    };
-
-    var locals = {};
+    var updateObject = utils.object.update;
 
     // **********************************************************************************
     // NAMESPACE DEFINITION
@@ -85,4 +62,23 @@
 
     };
 
-})(plugin);
+    // **********************************************************************************
+    // PRIVATE MEMBERS
+    // **********************************************************************************
+
+    var defaults = {
+        controlClass:  "field-control",
+        controlId:     "id_%(name)s",
+        errorClass:    "field-error",
+        errorTag:      "p",
+        fieldClass:    "form-field",
+        fieldTag:      "div",
+        helpTextClass: "field-helptext",
+        helpTextTag:   "p",
+        labelClass:    "field-label",
+        labelTag:      "label"
+    };
+
+    var locals = {};
+
+})(plugin, plugin.utils);
