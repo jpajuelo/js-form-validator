@@ -14,30 +14,24 @@
  *  limitations under the License.
  */
 
-
 "use strict";
 
 
-fmval.fields.PasswordField = (function () {
+/**
+ * @namespace [description]
+ */
+plugin.fields = {
 
     /**
-     * @extends {TextField}
+     * [states description]
      *
-     * @constructor
-     * @param {String} name
-     * @param {Object.<String, *>} [options]
-     * @throws {TypeError}
+     * @type {Object.<String, Number>}
      */
-    var PasswordField = function PasswordField(name, options) {
-        options = fmval.utils.updateObject(options);
-        options.type = "password";
+    states: {
+        CLEANED: 0,
+        SUCCESS: 1,
+        PENDING: 2,
+        FAILURE: 3
+    }
 
-        this.callParent(name, options);
-    };
-
-    PasswordField.inherit(fmval.fields.TextField);
-
-
-    return PasswordField;
-
-})();
+};
