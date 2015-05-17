@@ -29,74 +29,90 @@
     ns.inheritance = {
 
         /**
-         * [members description]
+         * [defineClass description]
          *
-         * @param {Function} existingClass [description]
-         * @param {Object.<String, *>} memberGroup [description]
+         * @param {Object.<String, *>} definition [description]
+         * @returns {Function} [description]
          */
-        members: function members(existingClass, memberGroup) {
-
-            for (var name in memberGroup) {
-                existingClass.prototype[name] = memberGroup[name];
-            }
-        },
-
         defineClass: function defineClass(definition) {
 
             if ('inherit' in definition) {
-                ns.inheritance.inherit(definition.constructor, definition.inherit);
+                inherit(definition.constructor, definition.inherit);
             }
+
+            if ('mixins' in definition) {
+                bindMixins(definition.constructor, definition.mixins);
+            }
+
+            addPrivateMember(definition.constructor);
 
             if ('members' in definition) {
-                ns.inheritance.members(definition.constructor, definition.members);
+                addMembers(definition.constructor, definition.members);
             }
 
-            definition.constructor.prototype._ = function _(method) {
-                return method.apply(this, Array.prototype.slice.call(arguments, 1));
-            };
-
             return definition.constructor;
-        },
+        }
 
-        /**
-         * [inherit description]
-         *
-         * @param {Function} existingClass [description]
-         * @param {Function} superConstructor [description]
-         */
-        inherit: function inherit(existingClass, superConstructor) {
-            var counter = 0;
+    };
 
-            existingClass.prototype = Object.create(superConstructor.prototype);
+    // **********************************************************************************
+    // PRIVATE MEMBERS
+    // **********************************************************************************
 
-            ns.inheritance.members(existingClass, {
+    var addPrivateMember = function addPrivateMember(existingClass) {
+        existingClass.prototype._ = function _(method) {
+            return method.apply(this, Array.prototype.slice.call(arguments, 1));
+        };
+    };
 
-                constructor: existingClass,
+    var addMembers = function addMembers(existingClass, members) {
 
-                superConstructor: superConstructor,
+        for (var name in members) {
+            existingClass.prototype[name] = members[name];
+        }
+    };
 
-                superClass: function superClass() {
-                    var currentClass = superConstructor;
+    var bindMixins = function bindMixins(existingClass, mixins) {
+        mixins.forEach(function (mixin) {
+            addMembers(existingClass, mixin.prototype);
+        });
 
-                    for (var i = 0; i < counter; i++) {
-                        currentClass = currentClass.prototype.superConstructor;
-                    }
+        existingClass.prototype.mixinClass = function mixinClass(index) {
+            mixins[index].apply(this, Array.prototype.slice.call(arguments, 1));
+        };
+    };
 
-                    counter++;
+    var inherit = function inherit(existingClass, superConstructor) {
+        var counter = 0;
 
-                    try {
-                        currentClass.apply(this, Array.prototype.slice.call(arguments));
-                    } catch (e) {
-                        counter = 0;
-                        throw e;
-                    }
+        existingClass.prototype = Object.create(superConstructor.prototype);
 
-                    counter--;
+        addMembers(existingClass, {
+
+            constructor: existingClass,
+
+            superConstructor: superConstructor,
+
+            superClass: function superClass() {
+                var currentClass = superConstructor;
+
+                for (var i = 0; i < counter; i++) {
+                    currentClass = currentClass.prototype.superConstructor;
                 }
 
-            });
-        },
+                counter++;
 
+                try {
+                    currentClass.apply(this, Array.prototype.slice.call(arguments));
+                } catch (e) {
+                    counter = 0;
+                    throw e;
+                }
+
+                counter--;
+            }
+
+        });
     };
 
 })(plugin.utils);
