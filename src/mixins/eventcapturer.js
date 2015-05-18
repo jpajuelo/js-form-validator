@@ -15,9 +15,11 @@
  */
 
 
-(function (ns) {
+(function (ns, utils) {
 
     "use strict";
+
+    var defineClass = utils.inheritance.defineClass;
 
     // **********************************************************************************
     // CLASS DEFINITION
@@ -74,4 +76,4 @@
 
     });
 
-})(plugin.mixins);
+})(plugin.mixins, plugin.utils);
