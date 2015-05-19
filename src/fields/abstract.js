@@ -116,10 +116,8 @@
              * @returns {AbstractField} The instance on which the method is called.
              */
             clean: function clean() {
-                switch (this.state) {
-                case ns.states.FAILURE:
+                if (this.state === ns.states.FAILURE) {
                     this._(removeError);
-                    break;
                 }
 
                 this.state = ns.states.CLEANED;
@@ -294,11 +292,7 @@
     };
 
     var removeError = function removeError() {
-
-        if (this.error instanceof ValidationError) {
-            this.element.removeChild(this.error.get());
-        }
-
+        this.element.removeChild(this.error.get());
         this.error = null;
 
         return this;
@@ -312,6 +306,8 @@
                 this.latestValue = value;
                 this.pendings = this.validators.slice(index + 1);
                 validator(value, handlePending.bind(this));
+
+                return true;
             } else {
                 try {
                     validator(value);
@@ -327,7 +323,7 @@
             }
         }
 
-        return this.state === ns.states.FAILURE || this.state === ns.states.PENDING;
+        return this.state === ns.states.FAILURE;
     };
 
 })(plugin.fields, plugin.utils);
