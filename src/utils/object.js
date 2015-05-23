@@ -46,7 +46,7 @@
             }
 
             for (var name in source) {
-                target[name] = cloneProperty.call(ns.object, source[name]);
+                target[name] = cloneProp.call(ns.object, source[name]);
             }
 
             return target;
@@ -64,7 +64,7 @@
             source = ns.object.clone(source);
 
             for (var name in source) {
-                target[name] = updateProperty.call(ns.object, target[name], source[name]);
+                target[name] = updateProp.call(ns.object, target[name], source[name]);
             }
 
             return target;
@@ -76,8 +76,7 @@
     // PRIVATE MEMBERS
     // **********************************************************************************
 
-    var cloneProperty = function cloneProperty(sourceValue) {
-
+    var cloneProp = function cloneProp(sourceValue) {
         if (isNull(sourceValue)) {
             return null;
         }
@@ -98,17 +97,21 @@
     };
 
     var isSimple = function isSimple(source) {
-        return typeof source === 'object' && source !== null && source.constructor === Object;
+        if (typeof source !== 'object') {
+            return false;
+        }
+
+        return source !== null && source.constructor === Object;
     };
 
-    var isSubClass = function isSubClass(parentClass, childClass) {
+    var isSubClass = function isSubClass(superClass, childClass) {
         var c1, c2, found = false;
 
-        if (typeof parentClass !== 'function' || typeof childClass !== 'function') {
+        if (typeof superClass !== 'function' || typeof childClass !== 'function') {
             return found;
         }
 
-        c1 = parentClass.prototype;
+        c1 = superClass.prototype;
         c2 = childClass.prototype;
 
         while (!(found = (c1 === c2))) {
@@ -122,8 +125,11 @@
         return found;
     };
 
-    var updateProperty = function updateProperty(targetValue, sourceValue) {
+    var equalsClass = function equalsClass(target, source) {
+        return target.constructor === source.constructor;
+    };
 
+    var updateProp = function updateProp(targetValue, sourceValue) {
         if (isNull(sourceValue)) {
             if (isNull(targetValue)) {
                 targetValue = null;
@@ -144,7 +150,7 @@
                 targetValue = targetValue.concat(sourceValue);
             }
         } else {
-            if (isNull(targetValue) || targetValue.constructor === sourceValue.constructor) {
+            if (isNull(targetValue) || equalsClass(targetValue, sourceValue)) {
                 targetValue = sourceValue;
             }
         }

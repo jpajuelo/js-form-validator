@@ -44,8 +44,6 @@
                 bindMixins(definition.constructor, definition.mixins);
             }
 
-            addPrivateMember(definition.constructor);
-
             if ('members' in definition) {
                 addMembers(definition.constructor, definition.members);
             }
@@ -59,37 +57,30 @@
     // PRIVATE MEMBERS
     // **********************************************************************************
 
-    var addPrivateMember = function addPrivateMember(existingClass) {
-        existingClass.prototype._ = function _(method) {
-            return method.apply(this, Array.prototype.slice.call(arguments, 1));
-        };
-    };
-
-    var addMembers = function addMembers(existingClass, members) {
-
+    var addMembers = function addMembers(constructor, members) {
         for (var name in members) {
-            existingClass.prototype[name] = members[name];
+            constructor.prototype[name] = members[name];
         }
     };
 
-    var bindMixins = function bindMixins(existingClass, mixins) {
+    var bindMixins = function bindMixins(constructor, mixins) {
         mixins.forEach(function (mixin) {
-            addMembers(existingClass, mixin.prototype);
+            addMembers(constructor, mixin.prototype);
         });
 
-        existingClass.prototype.mixinClass = function mixinClass(index) {
+        constructor.prototype.mixinClass = function mixinClass(index) {
             mixins[index].apply(this, Array.prototype.slice.call(arguments, 1));
         };
     };
 
-    var inherit = function inherit(existingClass, superConstructor) {
+    var inherit = function inherit(constructor, superConstructor) {
         var counter = 0;
 
-        existingClass.prototype = Object.create(superConstructor.prototype);
+        constructor.prototype = Object.create(superConstructor.prototype);
 
-        addMembers(existingClass, {
+        addMembers(constructor, {
 
-            constructor: existingClass,
+            constructor: constructor,
 
             superConstructor: superConstructor,
 

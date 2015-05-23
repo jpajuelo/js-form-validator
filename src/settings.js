@@ -34,7 +34,7 @@
          * [clean description]
          */
         clean: function clean() {
-            locals = {};
+            globals = {};
         },
 
         /**
@@ -48,7 +48,7 @@
                 throw new TypeError("[error description]");
             }
 
-            return name in locals ? locals[name] : defaults[name];
+            return name in globals ? globals[name] : defaults[name];
         },
 
         /**
@@ -57,7 +57,7 @@
          * @param {Object.<String, *>} options [description]
          */
         update: function update(options) {
-            locals = updateObject(defaults, options);
+            globals = updateObject(defaults, options);
         }
 
     };
@@ -79,6 +79,6 @@
         labelTag:      "label"
     };
 
-    var locals = {};
+    var globals = {};
 
 })(plugin, plugin.utils);

@@ -36,7 +36,6 @@
          * @returns {String} [description]
          */
         format: function format(target, namedArgs) {
-
             for (var name in namedArgs) {
                 target = target.replace("%(" + name + ")s", namedArgs[name]);
             }
