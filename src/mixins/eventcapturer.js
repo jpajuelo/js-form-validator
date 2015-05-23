@@ -51,6 +51,10 @@
              * @returns {EventCapturerMixin} The instance on which the member is called.
              */
             attach: function attach(name, handler) {
+                if (!(name in this.events)) {
+                    throw new TypeError("[error description]");
+                }
+
                 this.events[name].push(handler);
 
                 return this;
@@ -64,6 +68,10 @@
              */
             dispatch: function dispatch(name) {
                 var handlerArgs = Array.prototype.slice.call(arguments, 1);
+
+                if (!(name in this.events)) {
+                    throw new TypeError("[error description]");
+                }
 
                 this.events[name].forEach(function (handler) {
                     handler.apply(this, handlerArgs);

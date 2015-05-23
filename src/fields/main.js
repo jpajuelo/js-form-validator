@@ -30,7 +30,6 @@ plugin.fields = {
     states: {
         CLEANED: 0,
         SUCCESS: 1,
-        PENDING: 2,
         FAILURE: 3
     }
 

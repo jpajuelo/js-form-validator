@@ -52,25 +52,24 @@
     // **********************************************************************************
 
     var defaults = {
-        minlength:  0,
-        maxlength:  1024,
-        regexp:     null,
+        minLength: 0,
+        maxLength: 0,
+        regExp: null,
         controlTag: 'input',
         validators: []
     };
 
     var updateValidators = function updateValidators(options) {
-
-        if (options.regexp instanceof RegExp) {
-            options.validators.unshift(new RegExpValidator(options.regexp));
+        if (options.regExp instanceof RegExp) {
+            options.validators.unshift(new RegExpValidator(options.regExp));
         }
 
-        if (options.maxlength > options.minlength) {
-            options.validators.unshift(new MaxLengthValidator(options.maxlength));
+        if (options.maxLength > options.minLength) {
+            options.validators.unshift(new MaxLengthValidator(options.maxLength));
         }
 
-        if (options.minlength > 0) {
-            options.validators.unshift(new MinLengthValidator(options.minlength));
+        if (options.minLength > 0) {
+            options.validators.unshift(new MinLengthValidator(options.minLength));
         }
 
         return options;

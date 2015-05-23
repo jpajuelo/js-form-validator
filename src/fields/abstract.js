@@ -43,23 +43,23 @@
         constructor: function AbstractField(name, options) {
             options = updateObject(defaults, options);
 
+            this.name = getName(name);
+
+            this.label = getLabel(options);
+            this.control = getControl.call(this, options);
+            this.helpText = getHelpText(options);
+
+            addAttrs.call(this, options.controlAttrs);
+
+            this.element = createElement.call(this);
+            this.validators = getValidators(options);
+
             this.state = ns.states.CLEANED;
-            this.name  = this._(getName, name);
             this.error = null;
-
-            this.label    = this._(getLabel, options);
-            this.control  = this._(getControl, options);
-            this.helpText = this._(getHelpText, options);
-
-            this._(addAttrs, options.controlAttrs);
-
-            this.element    = this._(createElement);
-            this.validators = this._(getValidators, options);
-            this.pendings   = [];
 
             Object.defineProperty(this, 'errorMessage', {
                 get: function get() {
-                    return this.error instanceof ValidationError ? this.error.message : null;
+                    return this.error !== null ? this.error.message : null;
                 }
             });
 
@@ -69,7 +69,7 @@
                 }
             });
 
-            this.mixinClass(0, ['failure', 'pending', 'success']);
+            this.mixinClass(0, ['failure', 'success']);
         },
 
         mixins: [EventCapturerMixin],
@@ -77,11 +77,38 @@
         members: {
 
             /**
+             * [_insertError description]
+             *
+             * @param {ValidationError} error [description]
+             * @returns {AbstractField} The instance on which the method is called.
+             */
+            _insertError: function _insertError(error) {
+                this.element.insertBefore(error.get(), this.control.nextSibling);
+                this.state = ns.states.FAILURE;
+                this.error = error;
+
+                return this.dispatch('failure', error.message, this);
+            },
+
+            /**
+             * [_insertValue description]
+             *
+             * @param {String} value [description]
+             * @returns {AbstractField} The instance on which the method is called.
+             */
+            _insertValue: function _insertValue(value) {
+                this.state = ns.states.SUCCESS;
+                this.control.value = value;
+
+                return this.dispatch('success', value, this);
+            },
+
+            /**
              * [addAttr description]
              *
              * @param {String} name [description]
              * @param {String|Number|Boolean} value [description]
-             * @returns {BaseControl} The instance on which the method is called.
+             * @returns {AbstractField} The instance on which the method is called.
              */
             addAttr: function addAttr(name, value) {
                 this.control.setAttribute(name, value);
@@ -96,7 +123,21 @@
              * @returns {AbstractField} The instance on which the method is called.
              */
             addError: function addError(error) {
-                return this.clean()._(insertError, error);
+                if (!(error instanceof ValidationError)) {
+                    throw new TypeError("[error description");
+                }
+
+                return this.clean()._insertError(error);
+            },
+
+            /**
+             * [addInitialValue description]
+             *
+             * @param {String|Number|Boolean} initialValue [description]
+             * @returns {AbstractField} The instance on which the method is called.
+             */
+            addInitialValue: function addInitialValue(initialValue) {
+                return this.clean()._insertValue(initialValue);
             },
 
             /**
@@ -117,7 +158,7 @@
              */
             clean: function clean() {
                 if (this.state === ns.states.FAILURE) {
-                    this._(removeError);
+                    removeError.call(this);
                 }
 
                 this.state = ns.states.CLEANED;
@@ -131,9 +172,9 @@
              * @returns {AbstractField} The instance on which the method is called.
              */
             validate: function validate() {
-                var hasError = this.clean()._(findError, this.validators, this.value);
+                var value = this.clean().value;
 
-                return hasError ? this : this._(dispatchSuccess);
+                return findError.call(this, value) ? this : this._insertValue(value);
             }
 
         }
@@ -145,17 +186,16 @@
     // **********************************************************************************
 
     var defaults = {
-        required:      true,
-        label:         "",
-        helpText:      "",
-        controlTag:    "",
-        controlAttrs:  {},
-        validators:    [],
+        required: true,
+        label: "",
+        helpText: "",
+        controlTag: "",
+        controlAttrs: {},
+        validators: [],
         errorMessages: {}
     };
 
     var addAttrs = function addAttrs(controlAttrs) {
-
         for (var name in controlAttrs) {
             this.addAttr(name, controlAttrs[name]);
         }
@@ -185,28 +225,24 @@
         return element;
     };
 
-    var dispatchSuccess = function dispatchSuccess() {
-        this.state = ns.states.SUCCESS;
-
-        return this.dispatch('success', this);
-    };
-
-    var findError = function findError(validators, value) {
-        return validators.some(function (validator, index) {
-            return this._(triggerValidator, index, validator, value);
+    var findError = function findError(value) {
+        return this.validators.some(function (validator) {
+            return throwsError.call(this, validator, value);
         }, this);
     };
 
     var getControl = function getControl(options) {
         var control   = document.createElement(options.controlTag),
-            controlId = this._(getId, options.controlAttrs);
+            controlId = getId(options.controlAttrs);
 
         if (controlId) {
-            control.setAttribute('id', controlId);
+            control.setAttribute('id', formatString(controlId, {
+                name: this.name
+            }));
         }
 
         control.className = getSetting('controlClass');
-        control.name      = this.name;
+        control.name = this.name;
 
         return control;
     };
@@ -216,7 +252,7 @@
 
         if (options.helpText) {
             helpText = document.createElement(getSetting('helpTextTag'));
-            helpText.className   = getSetting('helpTextClass');
+            helpText.className = getSetting('helpTextClass');
             helpText.textContent = options.helpText;
         }
 
@@ -224,29 +260,32 @@
     };
 
     var getId = function getId(controlAttrs) {
-        var id = controlAttrs.id ? controlAttrs.id : getSetting('controlId');
+        var id = 'id' in controlAttrs ? controlAttrs.id : getSetting('controlId');
 
         delete controlAttrs.id;
 
-        return formatString(id, {
-            name: this.name
-        });
+        return id;
     };
 
     var getLabel = function getLabel(options) {
-        var label = null;
+        var label = null,
+            optional;
 
         if (options.label) {
             label = document.createElement(getSetting('labelTag'));
-            label.className   = getSetting('labelClass');
+            label.className = getSetting('labelClass');
             label.textContent = options.label;
+
+            if (!options.required) {
+                optional = label.appendChild(document.createElement('small'));
+                optional.textContent('optional');
+            }
         }
 
         return label;
     };
 
     var getName = function getName(name) {
-
         if (typeof name !== 'string' || !name.length) {
             throw new TypeError("The name must be a not-empty string.");
         }
@@ -255,40 +294,17 @@
     };
 
     var getValidators = function getValidators(options) {
-
         if (options.required) {
             options.validators.unshift(new RequiredValidator());
         }
 
         return options.validators.map(function (validator) {
-
             if (validator.code in options.errorMessages) {
                 validator.addMessage(options.errorMessages[validator.code]);
             }
 
             return validator;
         });
-    };
-
-    var handlePending = function handlePending(errorMessage) {
-
-        if (typeof errorMessage === 'string' && errorMessage.length) {
-            this._(insertError, new ValidationError(errorMessage));
-            this.pendings.length = 0;
-            delete this.latestValue;
-        } else {
-            if (!this._(findError, this.pendings, this.latestValue)) {
-                this._(dispatchSuccess);
-            }
-        }
-    };
-
-    var insertError = function insertError(error) {
-        this.element.insertBefore(error.get(), this.control.nextSibling);
-        this.state = ns.states.FAILURE;
-        this.error = error;
-
-        return this.dispatch('failure', this);
     };
 
     var removeError = function removeError() {
@@ -298,29 +314,19 @@
         return this;
     };
 
-    var triggerValidator = function triggerValidator(index, validator, value) {
-
-        if (typeof validator === 'function') {
-            if (validator.length > 1) {
-                this.state = ns.states.PENDING;
-                this.latestValue = value;
-                this.pendings = this.validators.slice(index + 1);
-                validator(value, handlePending.bind(this));
-
-                return true;
+    var throwsError = function throwsError(validator, value) {
+        try {
+            if (typeof validator === 'function') {
+                validator(value, this);
             } else {
-                try {
-                    validator(value);
-                } catch (e) {
-                    this._(insertError, e);
-                }
+                validator.trigger(value, this);
             }
-        } else {
-            try {
-                validator.trigger(value);
-            } catch (e) {
-                this._(insertError, e);
+        } catch (e) {
+            if (!(e instanceof ValidationError)) {
+                throw e;
             }
+
+            this._insertError(e);
         }
 
         return this.state === ns.states.FAILURE;

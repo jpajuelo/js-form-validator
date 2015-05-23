@@ -51,8 +51,8 @@
     // **********************************************************************************
 
     var defaults = {
-        regexp:     new RegExp(pattern, "i"),
-        schemes:    ['http', 'https'],
+        regexp: new RegExp(pattern, "i"),
+        schemes: [],
         validators: [],
         errorMessages: {
             invalid: "This field must be a valid URL."
@@ -60,7 +60,6 @@
     };
 
     var updateValidators = function updateValidators(options) {
-
         if (options.schemes.length) {
             options.validators.unshift(new URISchemeValidator(options.schemes));
         }
