@@ -15,202 +15,207 @@
  */
 
 
-"use strict";
+describe("A test suite for validator classes", function() {
 
+    "use strict";
 
-describe("A Test Suite for API Validators", function() {
-    var anonymousMethod, error, validator;
+    beforeAll(function () {
+        this.AbstractValidator = plugin.validators.AbstractValidator;
+        this.ValidationError = plugin.validators.ValidationError;
+    });
 
-    describe("A ValidationError TestCase", function() {
+    describe("A testcase for class AbstractValidator", function () {
 
-        it("should throw an exception whether 'message' is null", function() {
+        it("should create a new instance with default options", function () {
+            this.validator = new this.AbstractValidator();
 
-            anonymousMethod = function anonymousMethod() {
-                error = new fmval.validators.ValidationError();
-            };
-
-            expect(anonymousMethod).toThrowError(TypeError, "The property 'message' must be a not empty string.");
+            expect(this.validator.code).toEqual("not_provided");
+            expect(this.validator.message).toEqual("The error was not specified.");
         });
 
-        it("should throw an exception whether 'message' is a empty string", function() {
+        it("should not throw an exception if a value is given", function () {
+            this.validator = new this.AbstractValidator();
 
-            anonymousMethod = function anonymousMethod() {
-                error = new fmval.validators.ValidationError("");
-            };
+            this.anonMethod = function () {
+                this.validator.trigger();
+            }.bind(this);
 
-            expect(anonymousMethod).toThrowError(TypeError, "The property 'message' must be a not empty string.");
+            expect(this.anonMethod).not.toThrow();
         });
 
     });
 
-    describe("A BaseValidator TestCase", function() {
+    describe("A testcase for class RequiredValidator", function () {
 
-        it("should throw an exception whether 'code' is null", function() {
-
-            anonymousMethod = function anonymousMethod() {
-                validator = new fmval.validators.BaseValidator();
-            };
-
-            expect(anonymousMethod).toThrowError(TypeError, "The property 'code' must be a not empty string.");
+        beforeAll(function () {
+            this.validatorClass = plugin.validators.RequiredValidator;
         });
 
-        it("should throw an exception whether 'code' is a empty string", function() {
+        it("should create a new instance with default options", function () {
+            this.validator = new this.validatorClass();
 
-            anonymousMethod = function anonymousMethod() {
-                validator = new fmval.validators.BaseValidator({
-                    'code': ""
-                });
-            };
+            expect(this.validator instanceof this.AbstractValidator).toBeTruthy();
+            expect(this.validator.code).toEqual("required");
+            expect(this.validator.message).toEqual("This field is required.");
 
-            expect(anonymousMethod).toThrowError(TypeError, "The property 'code' must be a not empty string.");
         });
 
-        it("should throw an exception whether 'message' is null", function() {
+        it("should not throw an exception if the given value is allowed", function () {
+            this.validator = new this.validatorClass();
 
-            anonymousMethod = function anonymousMethod() {
-                validator = new fmval.validators.BaseValidator({
-                    'code': "test"
-                });
-            };
+            this.anonMethod = function () {
+                this.validator.trigger("test");
+            }.bind(this);
 
-            expect(anonymousMethod).toThrowError(TypeError, "The property 'message' must be a not empty string.");
+            expect(this.anonMethod).not.toThrow();
         });
 
-        it("should throw an exception whether 'message' is a empty string", function() {
+        it("should throw an exception if the given value is not allowed", function () {
+            this.validator = new this.validatorClass();
 
-            anonymousMethod = function anonymousMethod() {
-                validator = new fmval.validators.BaseValidator({
-                    'code': "test",
-                    'message': ""
-                });
-            };
+            this.anonMethod = function () {
+                this.validator.trigger("");
+            }.bind(this);
 
-            expect(anonymousMethod).toThrowError(TypeError, "The property 'message' must be a not empty string.");
-        });
-
-        it("should create an instance with valid 'code' and 'message'", function() {
-            validator = new fmval.validators.BaseValidator({
-                'code': "test",
-                'message': "test description"
-            });
-
-            expect(validator.run()).toBeTruthy();
+            expect(this.anonMethod).toThrow(new this.ValidationError("This field is required."));
         });
 
     });
 
-    describe("A RequiredValidator TestCase", function() {
+    describe("A testcase for class MinLengthValidator", function () {
 
-        it("should create an instance with no options successfully", function() {
-            validator = new fmval.validators.RequiredValidator();
-
-            expect(validator instanceof fmval.validators.BaseValidator).toBeTruthy();
-            expect(validator.code).toEqual("required");
-            expect(validator.message).toEqual("This field is required.");
-
-            anonymousMethod = function anonymousMethod() {
-                validator.run("test");
-            };
-
-            expect(anonymousMethod).not.toThrow();
+        beforeAll(function () {
+            this.validatorClass = plugin.validators.MinLengthValidator;
         });
 
-        it("should throw an exception whether it receives an unacceptable value", function() {
-            validator = new fmval.validators.RequiredValidator();
+        it("should create a new instance with default options", function () {
+            this.validator = new this.validatorClass(5);
 
-            anonymousMethod = function anonymousMethod() {
-                validator.run("");
-            };
-
-            expect(anonymousMethod).toThrow(new fmval.validators.ValidationError("This field is required."));
+            expect(this.validator instanceof this.AbstractValidator).toBeTruthy();
+            expect(this.validator.minLength).toEqual(5);
+            expect(this.validator.code).toEqual("min_length");
+            expect(this.validator.message).toEqual("This field must contain at least 5 chars.");
         });
 
-    });
+        it("should not throw an exception if the given value is allowed", function () {
+            this.validator = new this.validatorClass(5);
 
-    describe("A MinLengthValidator TestCase", function() {
+            this.anonMethod = function () {
+                this.validator.trigger("test value");
+            }.bind(this);
 
-        it('should create an instance with no options successfully', function() {
-            validator = new fmval.validators.MinLengthValidator(5);
-
-            expect(validator instanceof fmval.validators.BaseValidator).toBeTruthy();
-            expect(validator.minLength).toEqual(5);
-            expect(validator.code).toEqual("minlength");
-            expect(validator.message).toEqual("This field must contain at least 5 chars.");
-
-            anonymousMethod = function anonymousMethod() {
-                validator.run("test value");
-            };
-
-            expect(anonymousMethod).not.toThrow();
-
+            expect(this.anonMethod).not.toThrow();
         });
 
-        it("should throw an exception whether it receives an unacceptable value", function() {
-            validator = new fmval.validators.MinLengthValidator(5);
+        it("should throw an exception if the given value is not allowed", function () {
+            this.validator = new this.validatorClass(5);
 
-            anonymousMethod = function anonymousMethod() {
-                validator.run("test");
-            };
+            this.anonMethod = function () {
+                this.validator.trigger("test");
+            }.bind(this);
 
-            expect(anonymousMethod).toThrow(new fmval.validators.ValidationError("This field must contain at least 5 chars."));
+            expect(this.anonMethod).toThrow(new this.ValidationError("This field must contain at least 5 chars."));
         });
 
     });
 
-    describe("A MaxLengthValidator TestCase", function() {
+    describe("A testcase for class MaxLengthValidator", function () {
 
-        it('should create an instance with no options successfully', function() {
-            validator = new fmval.validators.MaxLengthValidator(10);
-
-            expect(validator instanceof fmval.validators.BaseValidator).toBeTruthy();
-            expect(validator.maxLength).toEqual(10);
-            expect(validator.code).toEqual("maxlength");
-            expect(validator.message).toEqual("This field must not exceed 10 chars.");
-
-            anonymousMethod = function anonymousMethod() {
-                validator.run("test value");
-            };
-
-            expect(anonymousMethod).not.toThrow();
+        beforeAll(function () {
+            this.validatorClass = plugin.validators.MaxLengthValidator;
         });
 
-        it("should throw an exception whether it receives an unacceptable value", function() {
-            validator = new fmval.validators.MaxLengthValidator(10);
+        it("should create a new instance with default options", function () {
+            this.validator = new this.validatorClass(10);
 
-            anonymousMethod = function anonymousMethod() {
-                validator.run("test value with extra chars");
-            };
+            expect(this.validator instanceof this.AbstractValidator).toBeTruthy();
+            expect(this.validator.maxLength).toEqual(10);
+            expect(this.validator.code).toEqual("max_length");
+            expect(this.validator.message).toEqual("This field must not exceed 10 chars.");
+        });
 
-            expect(anonymousMethod).toThrow(new fmval.validators.ValidationError("This field must not exceed 10 chars."));
+        it("should not throw an exception if the given value is allowed", function () {
+            this.validator = new this.validatorClass(10);
+
+            this.anonMethod = function () {
+                this.validator.trigger("test value");
+            }.bind(this);
+
+            expect(this.anonMethod).not.toThrow();
+        });
+
+        it("should throw an exception if the given value is not allowed", function () {
+            this.validator = new this.validatorClass(10);
+
+            this.anonMethod = function () {
+                this.validator.trigger("test value with extra chars");
+            }.bind(this);
+
+            expect(this.anonMethod).toThrow(new this.ValidationError("This field must not exceed 10 chars."));
         });
 
     });
 
-    describe("A RegexValidator TestCase", function() {
+    describe("A testcase for class RegExpValidator", function () {
 
-        it('should create an instance with no options successfully', function() {
-            validator = new fmval.validators.RegexValidator(/^[\w ]+$/);
-
-            expect(validator instanceof fmval.validators.BaseValidator).toBeTruthy();
-            expect(validator.regex.source).toEqual("^[\\w ]+$");
-            expect(validator.code).toEqual("invalid");
-            expect(validator.message).toEqual("This field must be a valid value.");
-
-            anonymousMethod = function anonymousMethod() {
-                validator.run("test value");
-            };
-
-            expect(anonymousMethod).not.toThrow();
+        beforeAll(function () {
+            this.validatorClass = plugin.validators.RegExpValidator;
         });
 
-        it("should throw an exception whether it receives an unacceptable value", function() {
-            validator = new fmval.validators.RegexValidator(/^[\w ]+$/);
+        it("should create a new instance with default options", function () {
+            this.validator = new this.validatorClass(/^[\w ]+$/);
 
-            anonymousMethod = function anonymousMethod() {
-                validator.run("test value with $");
-            };
+            expect(this.validator instanceof this.AbstractValidator).toBeTruthy();
+            expect(this.validator.regExp.source).toEqual("^[\\w ]+$");
+            expect(this.validator.code).toEqual("invalid");
+            expect(this.validator.message).toEqual("This field must be a valid value.");
+        });
 
-            expect(anonymousMethod).toThrow(new fmval.validators.ValidationError("This field must be a valid value."));
+        it("should not throw an exception if the given value is allowed", function () {
+            this.validator = new this.validatorClass(/^[\w ]+$/);
+
+            this.anonMethod = function () {
+                this.validator.trigger("test value");
+            }.bind(this);
+
+            expect(this.anonMethod).not.toThrow();
+        });
+
+        it("should throw an exception if the given value is not allowed", function () {
+            this.validator = new this.validatorClass(/^[\w ]+$/);
+
+            this.anonMethod = function () {
+                this.validator.trigger("test value with $");
+            }.bind(this);
+
+            expect(this.anonMethod).toThrow(new this.ValidationError("This field must be a valid value."));
+        });
+
+    });
+
+    describe("A testcase for class URISchemeValidator", function () {
+
+        beforeAll(function () {
+            this.validatorClass = plugin.validators.URISchemeValidator;
+        });
+
+        it("should create a new instance with default options", function () {
+            this.validator = new this.validatorClass(['http', 'https']);
+
+            expect(this.validator instanceof this.AbstractValidator).toBeTruthy();
+            expect(this.validator.schemes).toEqual(['http', 'https']);
+            expect(this.validator.code).toEqual("invalid_scheme");
+            expect(this.validator.message).toEqual("The URI scheme must be (http | https).");
+        });
+
+        it("should not throw an exception if the given value is allowed", function () {
+            this.validator = new this.validatorClass(['http', 'https']);
+
+            this.anonMethod = function () {
+                this.validator.trigger("http://localhost:8080");
+            }.bind(this);
+
+            expect(this.anonMethod).not.toThrow();
         });
 
     });

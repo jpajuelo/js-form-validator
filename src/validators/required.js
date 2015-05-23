@@ -48,9 +48,10 @@
              * @override
              *
              * @param {String} value [description]
+             * @param {AbstractField} field [description]
              * @returns {Boolean} [description]
              */
-            checkout: function checkout(value) {
+            checkout: function checkout(value, field) {
                 return value.length > 0;
             },
 

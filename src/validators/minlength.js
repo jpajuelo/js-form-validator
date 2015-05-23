@@ -32,13 +32,13 @@
      * @extends {AbstractValidator}
      *
      * @constructor
-     * @param {Number} minlength [description]
+     * @param {Number} minLength [description]
      * @param {Object.<String, *>} [options] [description]
      */
     ns.MinLengthValidator = defineClass({
 
-        constructor: function MinLengthValidator(minlength, options) {
-            this.minlength = minlength;
+        constructor: function MinLengthValidator(minLength, options) {
+            this.minLength = minLength;
             this.superClass(updateObject(defaults, options));
         },
 
@@ -54,7 +54,7 @@
              */
             addMessage: function addMessage(message) {
                 this.message = formatString(message, {
-                    minlength: this.minlength
+                    minLength: this.minLength
                 });
 
                 return this;
@@ -65,10 +65,11 @@
              * @override
              *
              * @param {String} value [description]
+             * @param {AbstractField} field [description]
              * @returns {Boolean} [description]
              */
-            checkout: function checkout(value) {
-                return value.length >= this.minlength;
+            checkout: function checkout(value, field) {
+                return value.length >= this.minLength;
             },
 
             /**
@@ -77,7 +78,7 @@
              *
              * @type {String}
              */
-            code: "minlength"
+            code: "min_length"
 
         }
 
@@ -88,7 +89,7 @@
     // **********************************************************************************
 
     var defaults = {
-        message: "This field must contain at least %(minlength)s chars."
+        message: "This field must contain at least %(minLength)s chars."
     };
 
 })(plugin.validators, plugin.utils);

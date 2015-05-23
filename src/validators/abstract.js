@@ -56,9 +56,10 @@
              * [checkout description]
              *
              * @param {Boolean|Number|String} value [description]
+             * @param {AbstractField} field [description]
              * @returns {Boolean} [description]
              */
-            checkout: function checkout(value) {
+            checkout: function checkout(value, field) {
                 return true;
             },
 
@@ -73,11 +74,11 @@
              * [trigger description]
              *
              * @param {Boolean|Number|String} value [description]
+             * @param {AbstractField} field [description]
              * @returns {AbstractValidator} The instance on which the member is called.
              */
-            trigger: function trigger(value) {
-
-                if (!this.checkout(value)) {
+            trigger: function trigger(value, field) {
+                if (!this.checkout(value, field)) {
                     throw new ns.ValidationError(this.message);
                 }
 

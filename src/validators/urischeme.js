@@ -65,9 +65,10 @@
              * @override
              *
              * @param {String} value [description]
+             * @param {AbstractField} field [description]
              * @returns {Boolean} [description]
              */
-            checkout: function checkout(value) {
+            checkout: function checkout(value, field) {
                 return this.schemes.indexOf(value.split("://")[0]) !== -1;
             },
 

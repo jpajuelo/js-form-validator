@@ -32,13 +32,13 @@
      * @extends {AbstractValidator}
      *
      * @constructor
-     * @param {Number} maxlength [description]
+     * @param {Number} maxLength [description]
      * @param {Object.<String, *>} [options] [description]
      */
     ns.MaxLengthValidator = defineClass({
 
-        constructor: function MaxLengthValidator(maxlength, options) {
-            this.maxlength = maxlength;
+        constructor: function MaxLengthValidator(maxLength, options) {
+            this.maxLength = maxLength;
             this.superClass(updateObject(defaults, options));
         },
 
@@ -54,7 +54,7 @@
              */
             addMessage: function addMessage(message) {
                 this.message = formatString(message, {
-                    maxlength: this.maxlength
+                    maxLength: this.maxLength
                 });
 
                 return this;
@@ -65,10 +65,11 @@
              * @override
              *
              * @param {String} value [description]
+             * @param {AbstractField} field [description]
              * @returns {Boolean} [description]
              */
-            checkout: function checkout(value) {
-                return value.length <= this.maxlength;
+            checkout: function checkout(value, field) {
+                return value.length <= this.maxLength;
             },
 
             /**
@@ -77,7 +78,7 @@
              *
              * @type {String}
              */
-            code: "maxlength"
+            code: "max_length"
 
         }
 
@@ -88,7 +89,7 @@
     // **********************************************************************************
 
     var defaults = {
-        message: "This field must not exceed %(maxlength)s chars."
+        message: "This field must not exceed %(maxLength)s chars."
     };
 
 })(plugin.validators, plugin.utils);

@@ -31,13 +31,13 @@
      * @extends {AbstractValidator}
      *
      * @constructor
-     * @param {RegExp} regexp [description]
+     * @param {RegExp} regExp [description]
      * @param {Object.<String, *>} [options] [description]
      */
     ns.RegExpValidator = defineClass({
 
-        constructor: function RegExpValidator(regexp, options) {
-            this.regexp = regexp;
+        constructor: function RegExpValidator(regExp, options) {
+            this.regExp = regExp;
             this.superClass(updateObject(defaults, options));
         },
 
@@ -50,10 +50,11 @@
              * @override
              *
              * @param {String} value [description]
+             * @param {AbstractField} field [description]
              * @returns {Boolean} [description]
              */
-            checkout: function checkout(value) {
-                return this.regexp.test(value);
+            checkout: function checkout(value, field) {
+                return this.regExp.test(value);
             },
 
             /**
