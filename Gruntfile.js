@@ -15,38 +15,52 @@
  */
 
 
-"use strict";
-
-
 module.exports = function (grunt) {
+
+    "use strict";
 
     var modules = {
 
-        main: [
-            "src/core.js",
-            "src/utils.js",
+        core: [
+            "src/main.js",
+            "src/utils/main.js",
+            "src/utils/object.js",
+            "src/utils/inheritance.js",
+            "src/utils/string.js",
+            "src/utils/pattern.js",
             "src/settings.js"
         ],
 
+        mixins: [
+            "src/mixins/main.js",
+            "src/mixins/eventcapturer.js"
+        ],
+
         validators: [
-            "src/validators/ValidationError.js",
-            "src/validators/BaseValidator.js",
-            "src/validators/RequiredValidator.js",
-            "src/validators/MinLengthValidator.js",
-            "src/validators/MaxLengthValidator.js",
-            "src/validators/RegexValidator.js"
+            "src/validators/main.js",
+            "src/validators/exception.js",
+            "src/validators/abstract.js",
+            "src/validators/required.js",
+            "src/validators/minlength.js",
+            "src/validators/maxlength.js",
+            "src/validators/regexp.js",
+            "src/validators/urischeme.js"
         ],
 
         fields: [
-            "src/fields/BaseField.js",
-            "src/fields/TextField.js",
-            "src/fields/PasswordField.js",
-            "src/fields/EmailField.js",
-            "src/fields/LongTextField.js"
+            "src/fields/main.js",
+            "src/fields/abstract.js",
+            "src/fields/basetext.js",
+            "src/fields/text.js",
+            "src/fields/longtext.js",
+            "src/fields/password.js",
+            "src/fields/email.js",
+            "src/fields/url.js"
         ],
 
         forms: [
-            "src/forms/BaseForm.js"
+            "src/forms/main.js",
+            "src/forms/validator.js"
         ]
 
     };
@@ -69,7 +83,8 @@ module.exports = function (grunt) {
             " *  limitations under the License."
         ].join("\n"),
 
-        plugin: modules.main
+        plugin: modules.core
+            .concat(modules.mixins)
             .concat(modules.validators)
             .concat(modules.fields)
             .concat(modules.forms),
@@ -82,9 +97,8 @@ module.exports = function (grunt) {
                 globalstrict: true,
                 globals: {
                     document: true,
-                    fmval: true,
-                    HTMLElement: true,
-                    HTMLFormElement: true
+                    HTMLFormElement: true,
+                    plugin: true
                 }
             },
             all: "<%= plugin %>"
@@ -118,8 +132,8 @@ module.exports = function (grunt) {
                 ].join("\n"),
                 separator: "\n\n",
                 stripBanners: true,
-                process: function (src, filepath) {
-                    return src.replace(/(^|\n)[ \t]*('use strict'|"use strict");?\s*/g, '$1');
+                process: function process(src) {
+                    return src.replace(/(^|\n)[ \t]*"use strict";?\s*\n/g, '$1');
                 }
             },
             dist: {
@@ -148,7 +162,6 @@ module.exports = function (grunt) {
 
     grunt.loadNpmTasks('grunt-contrib-jshint');
     grunt.loadNpmTasks('grunt-contrib-jasmine');
-
     grunt.loadNpmTasks('grunt-contrib-concat');
     grunt.loadNpmTasks('grunt-contrib-uglify');
 
