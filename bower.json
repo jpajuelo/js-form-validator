@@ -1,24 +1,22 @@
 {
-  "name": "plugin-form-validation",
-  "homepage": "https://github.com/jpajuelo/plugin-form-validation",
+  "name": "js-form-validator",
+  "homepage": "https://github.com/jpajuelo/js-form-validator",
   "authors": [
     "Jaime Pajuelo <jaimepk27@gmail.com>"
   ],
-  "description": "A simple JavaScript plugin to build and validate HTML5 forms",
-  "main": "dist/form-validation.js",
+  "description": "A JavaScript plugin to build and validate HTML5 forms",
+  "main": "dist/form-validator.js",
   "keywords": [
-    "web",
     "plugin",
     "form",
-    "validation"
+    "validator"
   ],
   "license": "Apache License 2.0",
   "ignore": [
     "**/.*",
     "node_modules",
     "bower_components",
-    "test",
-    "tests"
+    "test"
   ],
   "devDependencies": {
     "jasmine-jquery": "~2.1.0"

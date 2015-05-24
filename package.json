@@ -1,28 +1,27 @@
 {
-  "name": "form-validation",
+  "name": "form-validator",
   "version": "0.0.1",
-  "description": "The client-side to manage and test the form validation plugin",
+  "description": "The client-side to handle and test the form validator plugin",
   "author": "Jaime Pajuelo",
   "license": {
     "type": "Apache License 2.0",
-    "url": "https://github.com/jpajuelo/plugin-form-validation/blob/master/LICENSE"
+    "url": "https://github.com/jpajuelo/js-form-validator/blob/master/LICENSE"
   },
-  "main": "dist/form-validation.js",
+  "main": "dist/form-validator.js",
   "repository": {
     "type": "git",
-    "url": "https://github.com/jpajuelo/plugin-form-validation.git"
+    "url": "https://github.com/jpajuelo/js-form-validator.git"
   },
   "bugs": {
-    "url": "https://github.com/jpajuelo/plugin-form-validation/issues"
+    "url": "https://github.com/jpajuelo/js-form-validator/issues"
   },
   "keywords": [
-    "web",
     "plugin",
     "form",
-    "validation"
+    "validator"
   ],
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "grunt test"
   },
   "devDependencies": {
     "grunt": "^0.4.5",
