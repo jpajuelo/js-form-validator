@@ -95,6 +95,22 @@ describe("A test suite for form classes", function() {
             expect("lastname" in this.form.data).toBeTruthy();
         });
 
+        it("should throw error when field name is not exist", function() {
+            this.form = new this.formClass("test_form", []);
+
+            this.anonMethod = function () {
+                this.form.addErrorMessage("field_name");
+            }.bind(this);
+
+            expect(this.anonMethod).toThrowError(TypeError);
+
+            this.anonMethod = function () {
+                this.form.addInitialValue("field_name");
+            }.bind(this);
+
+            expect(this.anonMethod).toThrowError(TypeError);
+        });
+
     });
 
 });

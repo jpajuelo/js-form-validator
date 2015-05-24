@@ -287,7 +287,7 @@
 
             if (!options.required) {
                 optional = label.appendChild(document.createElement('small'));
-                optional.textContent('optional');
+                optional.textContent = "optional";
             }
         }
 

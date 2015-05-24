@@ -39,10 +39,6 @@
             this.element = document.createElement(getSetting('errorTag'));
             this.element.className = getSetting('errorClass');
 
-            if (this.superConstructor.captureStackTrace) {
-                this.superConstructor.captureStackTrace(this, this.constructor);
-            }
-
             this.message = message;
             this.element.textContent = message;
         },

@@ -129,6 +129,17 @@ describe("A test suite for field classes", function() {
             expect(this.field.control.id).toEqual("");
         });
 
+        it("should add label with optional text when required is false", function() {
+            this.field = new this.AbstractField("test", {
+                label: "Test",
+                required: false,
+                controlTag: 'input'
+            });
+
+            expect(this.field.label).not.toBeNull();
+            expect(this.field.label).toContainElement("small");
+        });
+
         it("should set failure state by default when it is validated", function() {
             this.field = new this.AbstractField("test", {
                 controlTag: 'input'
@@ -151,6 +162,36 @@ describe("A test suite for field classes", function() {
             this.field.clean();
             expect(this.field.error).toBeNull();
             expect(this.field.state).toEqual(plugin.fields.states.CLEANED);
+        });
+
+        it("should throw error when error added is failed", function() {
+            this.field = new this.AbstractField("test", {
+                controlTag: 'input'
+            });
+
+            this.anonMethod = function () {
+                this.field.addError(new Error("error message"));
+            }.bind(this);
+
+            expect(this.anonMethod).toThrowError(TypeError);
+        });
+
+        it("should throw error when event name does not exist", function() {
+            this.field = new this.AbstractField("test", {
+                controlTag: 'input'
+            });
+
+            this.anonMethod = function () {
+                this.field.attach('invalid_event');
+            }.bind(this);
+
+            expect(this.anonMethod).toThrowError(TypeError);
+
+            this.anonMethod = function () {
+                this.field.dispatch('invalid_event');
+            }.bind(this);
+
+            expect(this.anonMethod).toThrowError(TypeError);
         });
 
     });
@@ -256,6 +297,42 @@ describe("A test suite for field classes", function() {
             expect(this.field.state).toEqual(plugin.fields.states.FAILURE);
         });
 
+        it("should throw error when validator throws a non ValidationError", function() {
+            this.field = new this.fieldClass("test", {
+                required: false
+            });
+
+            this.field.addValidator(function (value) {
+                if (!value.length) {
+                    throw new TypeError("The error is not a ValidationError");
+                }
+            }.bind(this));
+
+            this.anonMethod = function () {
+                this.field.validate();
+            }.bind(this);
+
+            expect(this.anonMethod).toThrowError(TypeError, "The error is not a ValidationError");
+        });
+
+        it("should keep object this when handler is added with no thisArg", function() {
+            this.field = new this.fieldClass("test", {
+                required: false
+            });
+
+            this.field.attach('success', function () {
+                if (this instanceof plugin.fields.TextField) {
+                    throw new TypeError("The thisArg is instance of TextField");
+                }
+            });
+
+            this.anonMethod = function () {
+                this.field.validate();
+            }.bind(this);
+
+            expect(this.anonMethod).toThrowError(TypeError, "The thisArg is instance of TextField");
+        });
+
     });
 
     describe("A testcase for class PasswordField", function() {
@@ -334,6 +411,33 @@ describe("A test suite for field classes", function() {
 
             expect(this.field.errorMessage).toBeNull();
             expect(this.field.state).toEqual(plugin.fields.states.SUCCESS);
+        });
+
+        it("should add uri scheme validator when class is instantiated", function() {
+            this.field = new this.fieldClass("test", {
+                schemes: ['https']
+            });
+
+            this.field.control.value = "http://test.org";
+            this.field.validate();
+
+            expect(this.field.errorMessage).toEqual("The URI scheme must be (https).");
+            expect(this.field.state).toEqual(plugin.fields.states.FAILURE);
+        });
+
+        it("should add uri scheme validator when class is instantiated and error message is modified", function() {
+            this.field = new this.fieldClass("test", {
+                schemes: ['https'],
+                errorMessages: {
+                    invalid_scheme: "The errorMessage was modified"
+                }
+            });
+
+            this.field.control.value = "http://test.org";
+            this.field.validate();
+
+            expect(this.field.errorMessage).toEqual("The errorMessage was modified");
+            expect(this.field.state).toEqual(plugin.fields.states.FAILURE);
         });
 
     });
