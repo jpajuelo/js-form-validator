@@ -123,7 +123,16 @@ module.exports = function (grunt) {
                 template: require('grunt-template-jasmine-istanbul'),
                 templateOptions: {
                     coverage: "test/reports/coverage.json",
-                    report: "test/reports/coverage/html"
+                    report: [
+                        {type: "text-summary"},
+                        {type: "html", options: {dir: "test/reports/coverage/html"}}
+                    ],
+                    thresholds: {
+                        statements: 98,
+                        branches: 98,
+                        functions: 98,
+                        lines: 98
+                    }
                 }
             },
             all: "<%= plugin %>"
