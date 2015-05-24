@@ -91,6 +91,15 @@ module.exports = function (grunt) {
 
         pkg: grunt.file.readJSON("package.json"),
 
+        bump: {
+            options: {
+                commit: true,
+                commitMessage: "Version bumped to %VERSION%",
+                createTag: false,
+                push: false
+            }
+          },
+
         jshint: {
             options: {
                 undef: true,
@@ -160,6 +169,7 @@ module.exports = function (grunt) {
 
     });
 
+    grunt.loadNpmTasks('grunt-bump');
     grunt.loadNpmTasks('grunt-contrib-jshint');
     grunt.loadNpmTasks('grunt-contrib-jasmine');
     grunt.loadNpmTasks('grunt-contrib-concat');
