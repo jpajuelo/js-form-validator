@@ -164,7 +164,7 @@ describe("A test suite for the helpers", function () {
             expect(this.test.getProp1()).toEqual("test");
         });
 
-        it("should create a new instance binded mixin class successfully", function () {
+        it("should create a new instance bound mixin class successfully", function () {
             this.anonMixin = this.defineClass({
                 constructor: function TestMixin(prop2) {
                     this.prop2 = prop2;

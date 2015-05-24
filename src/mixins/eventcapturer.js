@@ -48,14 +48,20 @@
              *
              * @param {String} name [description]
              * @param {Function} handler [description]
+             * @param {Function} thisArg [description]
              * @returns {EventCapturerMixin} The instance on which the member is called.
              */
-            attach: function attach(name, handler) {
+            attach: function attach(name, handler, thisArg) {
                 if (!(name in this.events)) {
                     throw new TypeError("[error description]");
                 }
 
-                this.events[name].push(handler);
+                thisArg = arguments.length > 2 ? thisArg : this;
+
+                this.events[name].push({
+                    handler: handler,
+                    thisArg: thisArg
+                });
 
                 return this;
             },
@@ -73,9 +79,9 @@
                     throw new TypeError("[error description]");
                 }
 
-                this.events[name].forEach(function (handler) {
-                    handler.apply(this, handlerArgs);
-                }, this);
+                this.events[name].forEach(function (callback) {
+                    callback.handler.apply(callback.thisArg, handlerArgs);
+                });
 
                 return this;
             }

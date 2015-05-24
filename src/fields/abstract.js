@@ -167,6 +167,15 @@
             },
 
             /**
+             * [get description]
+             *
+             * @returns {HTMLElement} [description]
+             */
+            get: function get() {
+                return this.element;
+            },
+
+            /**
              * [validate description]
              *
              * @returns {AbstractField} The instance on which the method is called.
