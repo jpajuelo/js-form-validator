@@ -15,7 +15,7 @@
 
 ## Release history
 
-* 2015-05-24   v0.2.0   Work in progress, not yet officially released.
+* 2015-05-24   v0.0.2   Work in progress, not yet officially released.
 
 ## License
 
