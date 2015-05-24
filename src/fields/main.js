@@ -29,8 +29,8 @@ plugin.fields = {
      */
     states: {
         CLEANED: 0,
-        SUCCESS: 1,
-        FAILURE: 3
+        FAILURE: 1,
+        SUCCESS: 2
     }
 
 };

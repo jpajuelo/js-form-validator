@@ -442,4 +442,78 @@ describe("A test suite for field classes", function() {
 
     });
 
+    describe("A testcase for class ChoiceField", function() {
+
+        beforeAll(function () {
+            this.fieldClass = plugin.fields.ChoiceField;
+            this.choices = {
+                test1: "Test 1",
+                test2: "Test 2"
+            };
+        });
+
+        it("should create a new instance with default options", function () {
+            this.field = new this.fieldClass("test");
+
+            expect(this.field instanceof this.AbstractField).toBeTruthy();
+            expect(this.field.control).toEqual("select");
+        });
+
+        it("should add choices when field is created", function () {
+            this.field = new this.fieldClass("test", {
+                choices: this.choices
+            });
+
+            expect(this.field.selected).toHaveValue("test1");
+        });
+
+        it("should select the second option when field is created", function () {
+            this.field = new this.fieldClass("test", {
+                choices: this.choices
+            });
+
+            this.field.addInitialValue("test2");
+            expect(this.field.selected).toHaveValue("test2");
+        });
+
+        it("should throw error when initialValue is not contained", function () {
+            this.field = new this.fieldClass("test", {
+                choices: this.choices
+            });
+
+            this.anonMethod = function () {
+                this.field.addInitialValue("test3");
+            }.bind(this);
+
+            expect(this.anonMethod).toThrowError(TypeError);
+        });
+
+        it("should validate field successfully", function () {
+            this.field = new this.fieldClass("test", {
+                choices: this.choices
+            });
+
+            this.field.validate();
+
+            expect(this.field.state).toEqual(plugin.fields.states.SUCCESS);
+        });
+
+        it("should throw invalid_choice when option is added without using addChoice", function () {
+            var option = $("<option>").val("test3").text("Test 3").get(0);
+
+            this.field = new this.fieldClass("test", {
+                choices: this.choices
+            });
+
+            this.field.control.appendChild(option);
+            option.selected = true;
+
+            this.field.validate();
+
+            expect(this.field.selected).toBeNull();
+            expect(this.field.errorMessage).toEqual("The selected 'test3' is out of the given choices.");
+        });
+
+    });
+
 });

@@ -101,6 +101,12 @@
                 }
 
                 counter--;
+            },
+
+            superMember: function superMember(name) {
+                var memberArgs = Array.prototype.slice.call(arguments, 1);
+
+                return superConstructor.prototype[name].apply(this, memberArgs);
             }
 
         });
