@@ -28,7 +28,7 @@ describe("A test suite for field classes", function() {
             required: "This field is required.",
             min_length: "This field must be at least 5 chars.",
             max_length: "This field must be at most 10 chars.",
-            email_invalid: "This field must be a valid email address."
+            invalid_email: "This field must be a valid email address."
         };
     });
 
@@ -342,7 +342,7 @@ describe("A test suite for field classes", function() {
 
             expect(spy.calls.count()).toEqual(1);
             expect(spy.calls.argsFor(0)[0]).toEqual(this.errorMessages.min_length);
-            expect(this.field.hasError()).toBeTruthy();
+            expect(this.field.hasFailed()).toBeTruthy();
         });
 
         it("should validate successfully given validator 'min_length' is added", function () {
@@ -358,7 +358,7 @@ describe("A test suite for field classes", function() {
 
             expect(spy.calls.count()).toEqual(1);
             expect(spy.calls.argsFor(0)[0]).toEqual(value);
-            expect(this.field.hasError()).toBeFalsy();
+            expect(this.field.hasFailed()).toBeFalsy();
         });
 
         it("should throw error 'max_length' when field is validated", function () {
@@ -373,7 +373,7 @@ describe("A test suite for field classes", function() {
 
             expect(spy.calls.count()).toEqual(1);
             expect(spy.calls.argsFor(0)[0]).toEqual(this.errorMessages.max_length);
-            expect(this.field.hasError()).toBeTruthy();
+            expect(this.field.hasFailed()).toBeTruthy();
         });
 
         it("should validate successfully given validator 'max_length' is added", function () {
@@ -389,7 +389,7 @@ describe("A test suite for field classes", function() {
 
             expect(spy.calls.count()).toEqual(1);
             expect(spy.calls.argsFor(0)[0]).toEqual(value);
-            expect(this.field.hasError()).toBeFalsy();
+            expect(this.field.hasFailed()).toBeFalsy();
         });
 
     });
@@ -413,10 +413,34 @@ describe("A test suite for field classes", function() {
 
         beforeAll(function () {
             this.fieldClass = plugin.fields.EmailField;
+            this.checkFailureCallback = function checkFailureCallback(errorMessage) {
+                expect(this.callback.calls.count()).toEqual(1);
+                expect(this.callback.calls.argsFor(0)[0]).toEqual(errorMessage);
+                expect(this.field.hasFailed()).toBeTruthy();
+                expect(this.field.errorMessage).toEqual(errorMessage);
+            };
+            this.checkSuccessCallback = function checkSuccessCallback(value) {
+                expect(this.callback.calls.count()).toEqual(1);
+                expect(this.callback.calls.argsFor(0)[0]).toEqual(value);
+                expect(this.field.hasPassed()).toBeTruthy();
+                expect(this.field.errorMessage).toBeNull();
+            };
+            this.createField = function createField(options) {
+                return new this.fieldClass('test', options);
+            };
         });
 
-        it("should create instance with default options successfully", function () {
-            this.field = new this.fieldClass("test");
+        beforeEach(function () {
+            this.callback = jasmine.createSpy('spy');
+        });
+
+        afterEach(function () {
+            this.callback = null;
+            this.field = null;
+        });
+
+        it("should create instance successfully with default options", function () {
+            this.field = this.createField();
 
             expect(this.field instanceof this.baseClass).toBeTruthy();
             expect(this.field.validators.length).toBe(2);
@@ -424,38 +448,52 @@ describe("A test suite for field classes", function() {
         });
 
         it("should throw error 'required' when field is validated", function () {
-            var spy = jasmine.createSpy('spy');
+            this.field = this.createField()
+                .attach('failure', this.callback)
+                .validate();
 
-            this.field = new this.fieldClass("test");
-            this.field.attach('failure', spy);
-            this.field.validate();
-
-            expect(spy.calls.count()).toEqual(1);
-            expect(spy.calls.argsFor(0)[0]).toEqual(this.errorMessages.required);
-            expect(this.field.hasError()).toBeTruthy();
+            this.checkFailureCallback(this.errorMessages.required);
         });
 
         it("should throw error 'invalid' when field is validated", function () {
-            var spy = jasmine.createSpy('spy');
+            this.field = this.createField()
+                .attach('failure', this.callback)
+                .addInitialValue("invalid email")
+                .validate();
 
-            this.field = new this.fieldClass("test");
-            this.field.attach('failure', spy);
-            this.field.control.value = "email invalid";
-            this.field.validate();
-
-            expect(spy.calls.count()).toEqual(1);
-            expect(spy.calls.argsFor(0)[0]).toEqual(this.errorMessages.email_invalid);
-            expect(this.field.hasError()).toBeTruthy();
+            this.checkFailureCallback(this.errorMessages.invalid_email);
         });
 
-        it("should validate a valid email address successfully", function() {
-            this.field = new this.fieldClass("test");
+        it("should throw error 'invalid' when field is not required and validated", function () {
+            this.field = this.createField({
+                    required: false
+                })
+                .attach('failure', this.callback)
+                .addInitialValue("invalid email")
+                .validate();
 
-            this.field.control.value = "test@domain.org";
-            this.field.validate();
+            this.checkFailureCallback(this.errorMessages.invalid_email);
+        });
 
-            expect(this.field.errorMessage).toBeNull();
-            expect(this.field.state).toEqual(plugin.fields.states.SUCCESS);
+        it("should validate successfully when field is not required given value is empty", function () {
+            this.field = this.createField({
+                    required: false
+                })
+                .attach('success', this.callback)
+                .validate();
+
+            this.checkSuccessCallback("");
+        });
+
+        it("should validate successfully given value is a valid email", function () {
+            this.field = this.createField({
+                    required: false
+                })
+                .addInitialValue("test@domain.org")
+                .attach('success', this.callback)
+                .validate();
+
+            this.checkSuccessCallback("test@domain.org");
         });
 
     });
@@ -511,7 +549,7 @@ describe("A test suite for field classes", function() {
 
             expect(spy.calls.count()).toEqual(1);
             expect(spy.calls.argsFor(0)[0]).toEqual(value);
-            expect(this.field.hasError()).toBeFalsy();
+            expect(this.field.hasFailed()).toBeFalsy();
         });
 
         it("should add uri scheme validator when class is instantiated", function() {
