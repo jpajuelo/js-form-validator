@@ -23,17 +23,36 @@ describe("A test suite for field classes", function() {
         this.settings = plugin.settings;
         this.baseClass = plugin.fields.AbstractField;
         this.ValidationError = plugin.fields.ValidationError;
-
+        this.checkFailureCallback = function checkFailureCallback(errorMessage) {
+            expect(this.callback.calls.count()).toEqual(1);
+            expect(this.callback.calls.argsFor(0)[0]).toEqual(errorMessage);
+            expect(this.field.hasFailed()).toBeTruthy();
+            expect(this.field.errorMessage).toEqual(errorMessage);
+        };
+        this.checkSuccessCallback = function checkSuccessCallback(value) {
+            expect(this.callback.calls.count()).toEqual(1);
+            expect(this.callback.calls.argsFor(0)[0]).toEqual(value);
+            expect(this.field.hasPassed()).toBeTruthy();
+            expect(this.field.errorMessage).toBeNull();
+        };
+        this.createField = function createField(options) {
+            return new this.fieldClass('test', options);
+        };
         this.errorMessages = {
             required: "This field is required.",
             min_length: "This field must be at least 5 chars.",
-            max_length: "This field must be at most 10 chars.",
-            invalid_email: "This field must be a valid email address."
+            max_length: "This field must be at most 10 chars."
         };
+    });
+
+    beforeEach(function () {
+        this.callback = jasmine.createSpy('spy');
     });
 
     afterEach(function () {
         this.settings.clean();
+        this.callback = null;
+        this.field = null;
     });
 
     describe("A testcase for class baseClass", function() {
@@ -394,6 +413,21 @@ describe("A test suite for field classes", function() {
 
     });
 
+    describe("A testcase for class LongTextField", function() {
+
+        beforeAll(function () {
+            this.fieldClass = plugin.fields.LongTextField;
+        });
+
+        it("should create a new instance with default options", function () {
+            this.field = new this.fieldClass("test");
+
+            expect(this.field instanceof this.baseClass).toBeTruthy();
+            expect(this.field.control).toEqual("textarea");
+        });
+
+    });
+
     describe("A testcase for class PasswordField", function() {
 
         beforeAll(function () {
@@ -413,30 +447,7 @@ describe("A test suite for field classes", function() {
 
         beforeAll(function () {
             this.fieldClass = plugin.fields.EmailField;
-            this.checkFailureCallback = function checkFailureCallback(errorMessage) {
-                expect(this.callback.calls.count()).toEqual(1);
-                expect(this.callback.calls.argsFor(0)[0]).toEqual(errorMessage);
-                expect(this.field.hasFailed()).toBeTruthy();
-                expect(this.field.errorMessage).toEqual(errorMessage);
-            };
-            this.checkSuccessCallback = function checkSuccessCallback(value) {
-                expect(this.callback.calls.count()).toEqual(1);
-                expect(this.callback.calls.argsFor(0)[0]).toEqual(value);
-                expect(this.field.hasPassed()).toBeTruthy();
-                expect(this.field.errorMessage).toBeNull();
-            };
-            this.createField = function createField(options) {
-                return new this.fieldClass('test', options);
-            };
-        });
-
-        beforeEach(function () {
-            this.callback = jasmine.createSpy('spy');
-        });
-
-        afterEach(function () {
-            this.callback = null;
-            this.field = null;
+            this.errorMessages.invalid_email = "This field must be a valid email address.";
         });
 
         it("should create instance successfully with default options", function () {
@@ -498,85 +509,90 @@ describe("A test suite for field classes", function() {
 
     });
 
-    describe("A testcase for class LongTextField", function() {
-
-        beforeAll(function () {
-            this.fieldClass = plugin.fields.LongTextField;
-        });
-
-        it("should create a new instance with default options", function () {
-            this.field = new this.fieldClass("test");
-
-            expect(this.field instanceof this.baseClass).toBeTruthy();
-            expect(this.field.control).toEqual("textarea");
-        });
-
-    });
-
     describe("A testcase for class URLField", function() {
 
         beforeAll(function () {
             this.fieldClass = plugin.fields.URLField;
+            this.errorMessages.invalid_url = "This field must be a valid URL.";
+            this.errorMessages.invalid_scheme = "The URI scheme must be (http).";
         });
 
-        it("should create a new instance with default options", function () {
-            this.field = new this.fieldClass("test");
+        it("should create instance successfully given default options", function () {
+            this.field = this.createField();
 
             expect(this.field instanceof this.baseClass).toBeTruthy();
-            expect(this.field.control).toHaveAttr("type", "text");
+            expect(this.field.validators.length).toBe(2);
+            expect(this.field.control).toHaveAttr('type', 'text');
         });
 
-        it("should validate a valid URL successfully", function() {
-            this.field = new this.fieldClass("test");
-
-            this.field.control.value = "http://test.org";
-            this.field.validate();
-
-            expect(this.field.errorMessage).toBeNull();
-            expect(this.field.state).toEqual(plugin.fields.states.SUCCESS);
-        });
-
-        it("should validate successfully when validator 'invalid_scheme' is added", function () {
-            var spy = jasmine.createSpy('spy'),
-                value = "http://test.org";
-
-            this.field = new this.fieldClass("test", {
+        it("should create instance successfully given schemes", function () {
+            this.field = this.createField({
                 schemes: ['http']
             });
-            this.field.attach('success', spy);
-            this.field.control.value = value;
-            this.field.validate();
 
-            expect(spy.calls.count()).toEqual(1);
-            expect(spy.calls.argsFor(0)[0]).toEqual(value);
-            expect(this.field.hasFailed()).toBeFalsy();
+            expect(this.field.validators.length).toBe(3);
         });
 
-        it("should add uri scheme validator when class is instantiated", function() {
-            this.field = new this.fieldClass("test", {
-                schemes: ['https']
-            });
+        it("should throw error 'required' when field is validated", function () {
+            this.field = this.createField()
+                .attach('failure', this.callback)
+                .validate();
 
-            this.field.control.value = "http://test.org";
-            this.field.validate();
-
-            expect(this.field.errorMessage).toEqual("The URI scheme must be (https).");
-            expect(this.field.state).toEqual(plugin.fields.states.FAILURE);
+            this.checkFailureCallback(this.errorMessages.required);
         });
 
-        it("should add uri scheme validator when class is instantiated and error message is modified", function() {
+        it("should throw error 'invalid' when field is validated", function () {
+            this.field = this.createField()
+                .attach('failure', this.callback)
+                .addInitialValue("invalid url")
+                .validate();
+
+            this.checkFailureCallback(this.errorMessages.invalid_url);
+        });
+
+        it("should throw error 'invalid' when field is not required and validated", function () {
+            this.field = this.createField({
+                    required: false
+                })
+                .attach('failure', this.callback)
+                .addInitialValue("invalid url")
+                .validate();
+
+            this.checkFailureCallback(this.errorMessages.invalid_url);
+        });
+
+        it("should throw error 'invalid_scheme' when field is validated", function () {
+
             this.field = new this.fieldClass("test", {
-                schemes: ['https'],
-                errorMessages: {
-                    invalid_scheme: "The errorMessage was modified"
-                }
-            });
+                    schemes: ['http']
+                })
+                .attach('failure', this.callback)
+                .addInitialValue("https://test.org")
+                .validate();
 
-            this.field.control.value = "http://test.org";
-            this.field.validate();
+            this.checkFailureCallback(this.errorMessages.invalid_scheme);
+        });
 
-            expect(this.field.errorMessage).toEqual("The errorMessage was modified");
-            expect(this.field.state).toEqual(plugin.fields.states.FAILURE);
+        it("should validate successfully when field is not required given value is empty", function () {
+            this.field = this.createField({
+                    required: false,
+                    schemes: ['http']
+                })
+                .attach('success', this.callback)
+                .validate();
+
+            this.checkSuccessCallback("");
+        });
+
+        it("should validate successfully given value is a valid URL", function () {
+            this.field = this.createField({
+                    required: false
+                })
+                .addInitialValue("http://test.org")
+                .attach('success', this.callback)
+                .validate();
+
+            this.checkSuccessCallback("http://test.org");
         });
 
     });
