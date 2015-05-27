@@ -156,7 +156,7 @@
              */
             clean: function clean() {
 
-                if (this.hasError()) {
+                if (this.hasFailed()) {
                     removeError.call(this);
                 }
 
@@ -174,8 +174,22 @@
                 return this.element;
             },
 
-            hasError: function hasError() {
+            /**
+             * [hasFailed description]
+             *
+             * @returns {Boolean} [description]
+             */
+            hasFailed: function hasFailed() {
                 return this.state === ns.states.FAILURE;
+            },
+
+            /**
+             * [hasPassed description]
+             *
+             * @returns {Boolean} [description]
+             */
+            hasPassed: function hasPassed() {
+                return this.state === ns.states.SUCCESS;
             },
 
             /**
@@ -251,7 +265,7 @@
                 this._insertError(e);
             }
 
-            return this.hasError();
+            return this.hasFailed();
         }, this);
     };
 
