@@ -601,72 +601,117 @@ describe("A test suite for field classes", function() {
 
         beforeAll(function () {
             this.fieldClass = plugin.fields.ChoiceField;
+            this.errorMessages.invalid_choice = "The selected 'test3' is out of the given choices.";
             this.choices = {
                 test1: "Test 1",
                 test2: "Test 2"
             };
         });
 
-        it("should create a new instance with default options", function () {
-            this.field = new this.fieldClass("test");
+        it("should create instance successfully given default options", function () {
+            this.field = this.createField();
 
             expect(this.field instanceof this.baseClass).toBeTruthy();
-            expect(this.field.control).toEqual("select");
+            expect(this.field.validators.length).toBe(2);
+            expect(this.field.control).toEqual('select');
         });
 
-        it("should add choices when field is created", function () {
-            this.field = new this.fieldClass("test", {
+        it("should create instance successfully given choices", function () {
+            this.field = this.createField({
                 choices: this.choices
             });
 
-            expect(this.field.selected).toHaveValue("test1");
+            expect(this.field.selected).toHaveText(this.choices.test1);
         });
 
-        it("should select the second option when field is created", function () {
-            this.field = new this.fieldClass("test", {
-                choices: this.choices
-            });
+        it("should select given option when field receives initial value", function () {
+            this.field = this.createField({
+                    choices: this.choices
+                })
+                .addInitialValue('test2');
 
-            this.field.addInitialValue("test2");
-            expect(this.field.selected).toHaveValue("test2");
+            expect(this.field.selected).toHaveText(this.choices.test2);
         });
 
-        it("should throw error when initialValue is not contained", function () {
-            this.field = new this.fieldClass("test", {
-                choices: this.choices
-            });
-
+        it("should throw error when given initial value is not contained", function () {
             this.anonMethod = function () {
-                this.field.addInitialValue("test3");
+                this.field = this.createField()
+                    .addInitialValue("test1");
             }.bind(this);
 
             expect(this.anonMethod).toThrowError(TypeError);
         });
 
-        it("should validate field successfully", function () {
-            this.field = new this.fieldClass("test", {
-                choices: this.choices
-            });
+        it("should throw error 'required' when field is validated", function () {
+            this.field = this.createField()
+                .attach('failure', this.callback)
+                .validate();
 
-            this.field.validate();
-
-            expect(this.field.state).toEqual(plugin.fields.states.SUCCESS);
+            this.checkFailureCallback(this.errorMessages.required);
         });
 
-        it("should throw invalid_choice when option is added without using addChoice", function () {
+        it("should throw error 'invalid_choice' when field is validated", function () {
             var option = $("<option>").val("test3").text("Test 3").get(0);
 
-            this.field = new this.fieldClass("test", {
-                choices: this.choices
-            });
+            this.field = this.createField({
+                    choices: this.choices
+                })
+                .attach('failure', this.callback);
 
             this.field.control.appendChild(option);
             option.selected = true;
 
             this.field.validate();
 
-            expect(this.field.selected).toBeNull();
-            expect(this.field.errorMessage).toEqual("The selected 'test3' is out of the given choices.");
+            this.checkFailureCallback(this.errorMessages.invalid_choice);
+        });
+
+        it("should throw error 'invalid_choice' when field is not required and validated", function () {
+            var option = $("<option>").val("test3").text("Test 3").get(0);
+
+            this.field = this.createField({
+                    required: false,
+                    choices: this.choices
+                })
+                .attach('failure', this.callback);
+
+            this.field.control.appendChild(option);
+            option.selected = true;
+
+            this.field.validate();
+
+            this.checkFailureCallback(this.errorMessages.invalid_choice);
+        });
+
+        it("should validate successfully given selected option", function () {
+            this.field = this.createField({
+                    choices: this.choices
+                })
+                .attach('success', this.callback)
+                .validate();
+
+            this.checkSuccessCallback("test1");
+        });
+
+        it("should validate successfully when field is not required given value is empty", function () {
+            this.field = this.createField({
+                    required: false
+                })
+                .attach('success', this.callback)
+                .validate();
+
+            this.checkSuccessCallback("");
+        });
+
+        it("should validate successfully when field is not required given selected option", function () {
+            this.field = this.createField({
+                    required: false,
+                    choices: this.choices
+                })
+                .attach('success', this.callback)
+                .validate();
+
+            this.checkSuccessCallback("test1");
         });
 
     });
