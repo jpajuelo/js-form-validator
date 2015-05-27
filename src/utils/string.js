@@ -20,29 +20,24 @@
     "use strict";
 
     // **********************************************************************************
-    // NAMESPACE DEFINITION
+    // PUBLIC MEMBERS
     // **********************************************************************************
 
     /**
-     * @namespace [description]
+     * [format description]
+     *
+     * @param {String} target [description]
+     * @param {Object.<String, *>} namedArgs [description]
+     * @returns {String} [description]
      */
-    ns.string = {
+    ns.format = function format(target, namedArgs) {
+        namedArgs = namedArgs || {};
 
-        /**
-         * [format description]
-         *
-         * @param {String} target [description]
-         * @param {Object.<String, *>} namedArgs [description]
-         * @returns {String} [description]
-         */
-        format: function format(target, namedArgs) {
-            for (var name in namedArgs) {
-                target = target.replace("%(" + name + ")s", namedArgs[name]);
-            }
-
-            return target;
+        for (var name in namedArgs) {
+            target = target.replace("%(" + name + ")s", namedArgs[name]);
         }
 
+        return target;
     };
 
 })(plugin.utils);

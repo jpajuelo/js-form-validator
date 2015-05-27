@@ -15,12 +15,9 @@
  */
 
 
-(function (ns, utils) {
+(function (ns, utils, user) {
 
     "use strict";
-
-    var defineClass = utils.inheritance.defineClass,
-        getSetting  = plugin.settings.get;
 
     // **********************************************************************************
     // CLASS DEFINITION
@@ -32,15 +29,16 @@
      *
      * @constructor
      * @param {String} message [description]
+     * @param {Object.<String, *>} [namedArgs] [description]
      */
-    ns.ValidationError = defineClass({
+    ns.ValidationError = utils.define({
 
-        constructor: function ValidationError(message) {
-            this.element = document.createElement(getSetting('errorTag'));
-            this.element.className = getSetting('errorClass');
+        constructor: function ValidationError(message, namedArgs) {
+            this.element = document.createElement(user.get('errorTag'));
+            this.element.className = user.get('errorClass');
 
-            this.message = message;
-            this.element.textContent = message;
+            this.message = utils.format(message, namedArgs);
+            this.element.textContent = this.message;
         },
 
         inherit: Error,
@@ -62,10 +60,10 @@
              *
              * @type {String}
              */
-            name: "ValidationError"
+            name: 'ValidationError'
 
         }
 
     });
 
-})(plugin.validators, plugin.utils);
+})(plugin.fields, plugin.utils, plugin.settings);

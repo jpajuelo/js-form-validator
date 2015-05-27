@@ -15,14 +15,9 @@
  */
 
 
-(function (ns, utils) {
+(function (ns, utils, fields) {
 
     "use strict";
-
-    var defineClass     = utils.inheritance.defineClass,
-        ValidationError = plugin.validators.ValidationError,
-        states          = plugin.fields.states,
-        AbstractField   = plugin.fields.AbstractField;
 
     // **********************************************************************************
     // CLASS DEFINITION
@@ -35,7 +30,7 @@
      * @param {String} name [description]
      * @param {AbstractField[]} fields [description]
      */
-    ns.FormValidator = defineClass({
+    ns.FormValidator = utils.define({
 
         constructor: function FormValidator(name, fields) {
             this.element = getFormElement(name);
@@ -64,7 +59,7 @@
                     throw new TypeError("[error description]");
                 }
 
-                this.fieldsByName[name].addError(new ValidationError(errorMessage));
+                this.fieldsByName[name].addError(new fields.ValidationError(errorMessage));
 
                 return this;
             },
@@ -76,7 +71,7 @@
              * @returns {FormValidator} The instance on which the member is called.
              */
             addField: function addField(field) {
-                if (!(field instanceof AbstractField)) {
+                if (!(field instanceof fields.AbstractField)) {
                     throw new TypeError("[error description]");
                 }
 
@@ -194,4 +189,4 @@
         return this;
     };
 
-})(plugin.forms, plugin.utils);
+})(plugin, plugin.utils, plugin.fields);

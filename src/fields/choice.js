@@ -19,11 +19,6 @@
 
     "use strict";
 
-    var defineClass     = utils.inheritance.defineClass,
-        updateObject    = utils.object.update,
-        formatString    = utils.string.format,
-        ValidationError = plugin.validators.ValidationError;
-
     // **********************************************************************************
     // CLASS DEFINITION
     // **********************************************************************************
@@ -36,14 +31,14 @@
      * @param {String} name [description]
      * @param {Object.<String, *>} [options] [description]
      */
-    ns.ChoiceField = defineClass({
+    ns.ChoiceField = utils.define({
 
         constructor: function ChoiceField(name, options) {
-            options = updateObject(defaults, options);
-            options.validators.unshift(validInvalidChoice.bind(options));
+            options = utils.update(defaults, options);
+            options.validators.unshift(cleanInvalidChoice.bind(options));
 
-            this.choices = {};
             this.superClass(name, options);
+            this.choices = {};
 
             Object.defineProperty(this, 'selected', {
                 get: function get() {
@@ -85,6 +80,7 @@
              * @param {String} initialValue [description]
              */
             addInitialValue: function addInitialValue(initialValue) {
+
                 if (!(initialValue in this.choices)) {
                     throw new TypeError("[error description]");
                 }
@@ -109,7 +105,19 @@
         }
     };
 
+    var cleanInvalidChoice = function cleanInvalidChoice(value, field) {
+
+        if (value && !(value in field.choices)) {
+            throw new ns.ValidationError(this.errorMessages.invalid_choice, {
+                value: value
+            });
+        }
+
+        return value;
+    };
+
     var findSelected = function findSelected(choices) {
+
         for (var value in choices) {
             if (choices[value].selected) {
                 return choices[value];
@@ -117,14 +125,6 @@
         }
 
         return null;
-    };
-
-    var validInvalidChoice = function validInvalidChoice(value, field) {
-        if (value && !(value in field.choices)) {
-            throw new ValidationError(formatString(this.errorMessages.invalid_choice, {
-                value: value
-            }));
-        }
     };
 
 })(plugin.fields, plugin.utils);

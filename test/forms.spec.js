@@ -27,7 +27,7 @@ describe("A test suite for form classes", function() {
     describe("A testcase for class FormValidator", function () {
 
         beforeAll(function () {
-            this.formClass = plugin.forms.FormValidator;
+            this.formClass = plugin.FormValidator;
             this.fields = [
                 new this.TextField("lastname"),
                 new this.TextField("username", {

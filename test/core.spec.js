@@ -22,8 +22,8 @@ describe("A test suite for the helpers", function () {
     describe("A testcase for the object helpers", function () {
 
         beforeAll(function () {
-            this.cloneObject = plugin.utils.object.clone;
-            this.updateObject = plugin.utils.object.update;
+            this.cloneObject = plugin.utils.clone;
+            this.updateObject = plugin.utils.update;
         });
 
         it("should throw error when source is not simple instance of object", function () {
@@ -84,7 +84,7 @@ describe("A test suite for the helpers", function () {
     describe("A testcase for the string helpers", function () {
 
         beforeAll(function () {
-            this.formatString = plugin.utils.string.format;
+            this.formatString = plugin.utils.format;
         });
 
         it("should format target given named arguments", function () {
@@ -96,8 +96,8 @@ describe("A test suite for the helpers", function () {
     describe("A testcase for the pattern helpers", function () {
 
         beforeAll(function () {
-            this.email = new RegExp(plugin.utils.pattern.email, "i");
-            this.url = new RegExp(plugin.utils.pattern.url, "i");
+            this.email = plugin.utils.regexps.email;
+            this.url = plugin.utils.regexps.url;
         });
 
         it("should check if url pattern works with urls", function () {
@@ -121,7 +121,7 @@ describe("A test suite for the helpers", function () {
     describe("A testcase for the object inheritance", function () {
 
         beforeAll(function () {
-            this.defineClass = plugin.utils.inheritance.defineClass;
+            this.defineClass = plugin.utils.define;
         });
 
         it("should create a new instance successfully", function () {

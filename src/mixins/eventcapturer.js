@@ -19,21 +19,19 @@
 
     "use strict";
 
-    var defineClass = utils.inheritance.defineClass;
-
     // **********************************************************************************
     // CLASS DEFINITION
     // **********************************************************************************
 
     /**
-     * [EventCapturerMixin description]
+     * [EventCapturer description]
      *
      * @constructor
      * @param {String[]} names [description]
      */
-    ns.EventCapturerMixin = defineClass({
+    ns.EventCapturer = utils.define({
 
-        constructor: function EventCapturerMixin(names) {
+        constructor: function EventCapturer(names) {
             this.events = {};
 
             names.forEach(function (name) {
@@ -49,18 +47,17 @@
              * @param {String} name [description]
              * @param {Function} handler [description]
              * @param {Function} thisArg [description]
-             * @returns {EventCapturerMixin} The instance on which the member is called.
+             * @returns {EventCapturer} The instance on which the member is called.
              */
             attach: function attach(name, handler, thisArg) {
+
                 if (!(name in this.events)) {
                     throw new TypeError("[error description]");
                 }
 
-                thisArg = arguments.length > 2 ? thisArg : this;
-
                 this.events[name].push({
                     handler: handler,
-                    thisArg: thisArg
+                    thisArg: arguments.length > 2 ? thisArg : this
                 });
 
                 return this;
@@ -70,7 +67,7 @@
              * [dispatch description]
              *
              * @param {String} name [description]
-             * @returns {EventCapturerMixin} The instance on which the member is called.
+             * @returns {EventCapturer} The instance on which the member is called.
              */
             dispatch: function dispatch(name) {
                 var handlerArgs = Array.prototype.slice.call(arguments, 1);

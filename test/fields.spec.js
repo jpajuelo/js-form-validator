@@ -21,39 +21,41 @@ describe("A test suite for field classes", function() {
 
     beforeAll(function () {
         this.settings = plugin.settings;
-        this.AbstractField = plugin.fields.AbstractField;
-        this.ValidationError = plugin.validators.ValidationError;
-        this.RequiredValidator = plugin.validators.RequiredValidator;
-        this.MaxLengthValidator = plugin.validators.MaxLengthValidator;
-        this.MinLengthValidator = plugin.validators.MinLengthValidator;
-        this.RegExpValidator = plugin.validators.RegExpValidator;
+        this.baseClass = plugin.fields.AbstractField;
+        this.ValidationError = plugin.fields.ValidationError;
+
+        this.errorMessages = {
+            required: "This field is required.",
+            min_length: "This field must be at least 5 chars.",
+            max_length: "This field must be at most 10 chars.",
+            email_invalid: "This field must be a valid email address."
+        };
     });
 
     afterEach(function () {
         this.settings.clean();
     });
 
-    describe("A testcase for class AbstractField", function() {
+    describe("A testcase for class baseClass", function() {
 
         it("should throw error if new instance is created with default options", function() {
             this.anonMethod = function () {
-                this.field = new this.AbstractField("test");
+                this.field = new this.baseClass("test");
             }.bind(this);
 
             expect(this.anonMethod).toThrow();
         });
 
         it("should create a new instance with controlTag='input'", function() {
-            this.field = new this.AbstractField("test", {
+            this.field = new this.baseClass("test", {
                 controlTag: 'input'
             });
 
             expect(this.field.validators.length).toEqual(1);
-            expect(this.field.validators).toContain(new this.RequiredValidator());
         });
 
         it("should create a new instance with controlTag='input' and required=false", function() {
-            this.field = new this.AbstractField("test", {
+            this.field = new this.baseClass("test", {
                 controlTag: 'input',
                 required: false
             });
@@ -62,7 +64,7 @@ describe("A test suite for field classes", function() {
         });
 
         it("should create a new instance with attr placeholder='Test'", function() {
-            this.field = new this.AbstractField("test", {
+            this.field = new this.baseClass("test", {
                 controlTag: 'input',
                 controlAttrs: {
                     placeholder: "Test"
@@ -73,7 +75,7 @@ describe("A test suite for field classes", function() {
         });
 
         it("should create a new instance with label='Test:'", function() {
-            this.field = new this.AbstractField("test", {
+            this.field = new this.baseClass("test", {
                 label: "Test:",
                 controlTag: 'input'
             });
@@ -84,7 +86,7 @@ describe("A test suite for field classes", function() {
         });
 
         it("should create a new instance with helpText='Enter chars.'", function() {
-            this.field = new this.AbstractField("test", {
+            this.field = new this.baseClass("test", {
                 helpText: "Enter chars.",
                 controlTag: 'input'
             });
@@ -94,7 +96,7 @@ describe("A test suite for field classes", function() {
         });
 
         it("should create a new instance with attr id='test'", function() {
-            this.field = new this.AbstractField("test", {
+            this.field = new this.baseClass("test", {
                 controlTag: 'input',
                 controlAttrs: {
                     id: "test"
@@ -105,7 +107,7 @@ describe("A test suite for field classes", function() {
         });
 
         it("should create a new instance with attr id=''", function() {
-            this.field = new this.AbstractField("test", {
+            this.field = new this.baseClass("test", {
                 controlTag: 'input',
                 controlAttrs: {
                     id: ""
@@ -120,7 +122,7 @@ describe("A test suite for field classes", function() {
                 controlId: ""
             });
 
-            this.field = new this.AbstractField("test", {
+            this.field = new this.baseClass("test", {
                 label: "Test:",
                 controlTag: 'input'
             });
@@ -130,7 +132,7 @@ describe("A test suite for field classes", function() {
         });
 
         it("should add label with optional text when required is false", function() {
-            this.field = new this.AbstractField("test", {
+            this.field = new this.baseClass("test", {
                 label: "Test",
                 required: false,
                 controlTag: 'input'
@@ -141,7 +143,7 @@ describe("A test suite for field classes", function() {
         });
 
         it("should set failure state by default when it is validated", function() {
-            this.field = new this.AbstractField("test", {
+            this.field = new this.baseClass("test", {
                 controlTag: 'input'
             });
             this.field.validate();
@@ -151,7 +153,7 @@ describe("A test suite for field classes", function() {
         });
 
         it("should add new error and clean the field", function() {
-            this.field = new this.AbstractField("test", {
+            this.field = new this.baseClass("test", {
                 controlTag: 'input'
             });
 
@@ -165,7 +167,7 @@ describe("A test suite for field classes", function() {
         });
 
         it("should throw error when error added is failed", function() {
-            this.field = new this.AbstractField("test", {
+            this.field = new this.baseClass("test", {
                 controlTag: 'input'
             });
 
@@ -177,7 +179,7 @@ describe("A test suite for field classes", function() {
         });
 
         it("should throw error when event name does not exist", function() {
-            this.field = new this.AbstractField("test", {
+            this.field = new this.baseClass("test", {
                 controlTag: 'input'
             });
 
@@ -203,55 +205,51 @@ describe("A test suite for field classes", function() {
         });
 
         it("should create a new instance with default options", function () {
-            this.field = new this.fieldClass("test");
+            this.field = new this.fieldClass("test", {
+                controlTag: 'input'
+            });
 
-            expect(this.field instanceof this.AbstractField).toBeTruthy();
+            expect(this.field instanceof this.baseClass).toBeTruthy();
             expect(this.field.control).toEqual('input');
             expect(this.field.validators.length).toEqual(1);
-            expect(this.field.validators).toContain(new this.RequiredValidator());
         });
 
         it("should create a new instance with minlength=5", function () {
             this.field = new this.fieldClass("test", {
-                minLength: 5
+                minLength: 5,
+                controlTag: 'input'
             });
 
             expect(this.field.validators.length).toEqual(2);
-            expect(this.field.validators).toContain(new this.RequiredValidator());
-            expect(this.field.validators).toContain(new this.MinLengthValidator(5));
         });
 
         it("should create a new instance with minlength=10 and maxlength=5", function () {
             this.field = new this.fieldClass("test", {
                 minLength: 10,
-                maxLength: 5
+                maxLength: 5,
+                controlTag: 'input'
             });
 
             expect(this.field.validators.length).toEqual(2);
-            expect(this.field.validators).toContain(new this.RequiredValidator());
-            expect(this.field.validators).toContain(new this.MinLengthValidator(10));
         });
 
         it("should create a new instance with minlength=5 and maxlength=10", function () {
             this.field = new this.fieldClass("test", {
                 minLength: 5,
-                maxLength: 10
+                maxLength: 10,
+                controlTag: 'input'
             });
 
             expect(this.field.validators.length).toEqual(3);
-            expect(this.field.validators).toContain(new this.RequiredValidator());
-            expect(this.field.validators).toContain(new this.MinLengthValidator(5));
-            expect(this.field.validators).toContain(new this.MaxLengthValidator(10));
         });
 
         it("should create a new instance with regexp=/^[\\w ]+$/", function () {
             this.field = new this.fieldClass("test", {
-                regExp: /^[\w ]+$/
+                regExp: /^[\w ]+$/,
+                controlTag: 'input'
             });
 
             expect(this.field.validators.length).toEqual(2);
-            expect(this.field.validators).toContain(new this.RequiredValidator());
-            expect(this.field.validators).toContain(new this.RegExpValidator(/^[\w ]+$/));
         });
 
         it("should throw error if given 'name' is an empty string", function() {
@@ -273,11 +271,10 @@ describe("A test suite for field classes", function() {
         it("should create a new instance with default options", function () {
             this.field = new this.fieldClass("test");
 
-            expect(this.field instanceof this.AbstractField).toBeTruthy();
+            expect(this.field instanceof this.baseClass).toBeTruthy();
             expect(this.field.control).toEqual('input');
             expect(this.field.control).toHaveAttr("type", "text");
             expect(this.field.validators.length).toEqual(1);
-            expect(this.field.validators).toContain(new this.RequiredValidator());
         });
 
         it("should validate the field given a simple validator", function() {
@@ -333,6 +330,68 @@ describe("A test suite for field classes", function() {
             expect(this.anonMethod).toThrowError(TypeError, "The thisArg is instance of TextField");
         });
 
+        it("should throw error 'min_length' when field is validated", function () {
+            var spy = jasmine.createSpy('spy');
+
+            this.field = new this.fieldClass("test", {
+                minLength: 5
+            });
+            this.field.attach('failure', spy);
+            this.field.control.value = "test";
+            this.field.validate();
+
+            expect(spy.calls.count()).toEqual(1);
+            expect(spy.calls.argsFor(0)[0]).toEqual(this.errorMessages.min_length);
+            expect(this.field.hasError()).toBeTruthy();
+        });
+
+        it("should validate successfully given validator 'min_length' is added", function () {
+            var spy = jasmine.createSpy('spy'),
+                value = "testcase";
+
+            this.field = new this.fieldClass("test", {
+                minLength: 5
+            });
+            this.field.attach('success', spy);
+            this.field.control.value = value;
+            this.field.validate();
+
+            expect(spy.calls.count()).toEqual(1);
+            expect(spy.calls.argsFor(0)[0]).toEqual(value);
+            expect(this.field.hasError()).toBeFalsy();
+        });
+
+        it("should throw error 'max_length' when field is validated", function () {
+            var spy = jasmine.createSpy('spy');
+
+            this.field = new this.fieldClass("test", {
+                maxLength: 10
+            });
+            this.field.attach('failure', spy);
+            this.field.control.value = "testcase for fields";
+            this.field.validate();
+
+            expect(spy.calls.count()).toEqual(1);
+            expect(spy.calls.argsFor(0)[0]).toEqual(this.errorMessages.max_length);
+            expect(this.field.hasError()).toBeTruthy();
+        });
+
+        it("should validate successfully given validator 'max_length' is added", function () {
+            var spy = jasmine.createSpy('spy'),
+                value = "testcase";
+
+            this.field = new this.fieldClass("test", {
+                maxLength: 10
+            });
+            this.field.attach('success', spy);
+            this.field.control.value = value;
+            this.field.validate();
+
+            expect(spy.calls.count()).toEqual(1);
+            expect(spy.calls.argsFor(0)[0]).toEqual(value);
+            expect(this.field.hasError()).toBeFalsy();
+        });
+
     });
 
     describe("A testcase for class PasswordField", function() {
@@ -344,23 +403,49 @@ describe("A test suite for field classes", function() {
         it("should create a new instance with default options", function () {
             this.field = new this.fieldClass("test");
 
-            expect(this.field instanceof this.AbstractField).toBeTruthy();
+            expect(this.field instanceof this.baseClass).toBeTruthy();
             expect(this.field.control).toHaveAttr("type", "password");
         });
 
     });
 
-    describe("A testcase for class EmailField", function() {
+    describe("A testcase for class EmailField", function () {
 
         beforeAll(function () {
             this.fieldClass = plugin.fields.EmailField;
         });
 
-        it("should create a new instance with default options", function () {
+        it("should create instance with default options successfully", function () {
             this.field = new this.fieldClass("test");
 
-            expect(this.field instanceof this.AbstractField).toBeTruthy();
-            expect(this.field.control).toHaveAttr("type", "text");
+            expect(this.field instanceof this.baseClass).toBeTruthy();
+            expect(this.field.validators.length).toBe(2);
+            expect(this.field.control).toHaveAttr('type', 'text');
+        });
+
+        it("should throw error 'required' when field is validated", function () {
+            var spy = jasmine.createSpy('spy');
+
+            this.field = new this.fieldClass("test");
+            this.field.attach('failure', spy);
+            this.field.validate();
+
+            expect(spy.calls.count()).toEqual(1);
+            expect(spy.calls.argsFor(0)[0]).toEqual(this.errorMessages.required);
+            expect(this.field.hasError()).toBeTruthy();
+        });
+
+        it("should throw error 'invalid' when field is validated", function () {
+            var spy = jasmine.createSpy('spy');
+
+            this.field = new this.fieldClass("test");
+            this.field.attach('failure', spy);
+            this.field.control.value = "email invalid";
+            this.field.validate();
+
+            expect(spy.calls.count()).toEqual(1);
+            expect(spy.calls.argsFor(0)[0]).toEqual(this.errorMessages.email_invalid);
+            expect(this.field.hasError()).toBeTruthy();
         });
 
         it("should validate a valid email address successfully", function() {
@@ -384,7 +469,7 @@ describe("A test suite for field classes", function() {
         it("should create a new instance with default options", function () {
             this.field = new this.fieldClass("test");
 
-            expect(this.field instanceof this.AbstractField).toBeTruthy();
+            expect(this.field instanceof this.baseClass).toBeTruthy();
             expect(this.field.control).toEqual("textarea");
         });
 
@@ -399,7 +484,7 @@ describe("A test suite for field classes", function() {
         it("should create a new instance with default options", function () {
             this.field = new this.fieldClass("test");
 
-            expect(this.field instanceof this.AbstractField).toBeTruthy();
+            expect(this.field instanceof this.baseClass).toBeTruthy();
             expect(this.field.control).toHaveAttr("type", "text");
         });
 
@@ -411,6 +496,22 @@ describe("A test suite for field classes", function() {
 
             expect(this.field.errorMessage).toBeNull();
             expect(this.field.state).toEqual(plugin.fields.states.SUCCESS);
+        });
+
+        it("should validate successfully when validator 'invalid_scheme' is added", function () {
+            var spy = jasmine.createSpy('spy'),
+                value = "http://test.org";
+
+            this.field = new this.fieldClass("test", {
+                schemes: ['http']
+            });
+            this.field.attach('success', spy);
+            this.field.control.value = value;
+            this.field.validate();
+
+            expect(spy.calls.count()).toEqual(1);
+            expect(spy.calls.argsFor(0)[0]).toEqual(value);
+            expect(this.field.hasError()).toBeFalsy();
         });
 
         it("should add uri scheme validator when class is instantiated", function() {
@@ -455,7 +556,7 @@ describe("A test suite for field classes", function() {
         it("should create a new instance with default options", function () {
             this.field = new this.fieldClass("test");
 
-            expect(this.field instanceof this.AbstractField).toBeTruthy();
+            expect(this.field instanceof this.baseClass).toBeTruthy();
             expect(this.field.control).toEqual("select");
         });
 

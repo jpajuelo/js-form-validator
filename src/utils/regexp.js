@@ -19,26 +19,26 @@
 
     "use strict";
 
-    var emailRE = {
+    var email = {
         user: "^[-!#$%&'*+/=?^_`{}|~A-Z0-9]+" +
               "(\\.[-!#$%&'*+/=?^_`{}|~0-9A-Z]+)*",
         domain: "((?:[A-Z0-9](?:[A-Z0-9-]{0,61}[A-Z0-9])?\\.)+)" +
                 "(?:[A-Z0-9-]{2,63}(?!-))$"
     };
 
-    var ipv4RE = "(?:25[0-5]|2[0-4]\\d|[0-1]?\\d?\\d)" +
-                 "(?:\\.(?:25[0-5]|2[0-4]\\d|[0-1]?\\d?\\d)){3}";
+    var ipv4 = "(?:25[0-5]|2[0-4]\\d|[0-1]?\\d?\\d)" +
+               "(?:\\.(?:25[0-5]|2[0-4]\\d|[0-1]?\\d?\\d)){3}";
 
-    var hostRE = {
+    var host = {
         name: "[A-Z0-9](?:[A-Z0-9-]*[A-Z0-9])?",
         domain: "(?:\\.[A-Z0-9]+(?:[A-Z0-9-]*[A-Z0-9]+)*)*",
         tld: "\\.[A-Z]{2,}\\.?"
     };
 
-    var urlRE = {
+    var url = {
         scheme: "^(?:[A-Z0-9\\.\\-]*)://",
-        host: "(?:" + ipv4RE + "|" +
-              "(" + hostRE.name + hostRE.domain + hostRE.tld + "|localhost))",
+        host: "(?:" + ipv4 + "|" +
+              "(" + host.name + host.domain + host.tld + "|localhost))",
         port: "(?::\\d{2,5})?",
         path: "(?:[/?#][^\\s]*)?$"
     };
@@ -50,21 +50,21 @@
     /**
      * @namespace [description]
      */
-    ns.pattern = {
+    ns.regexps = {
 
         /**
          * [email description]
          *
          * @type {String}
          */
-        email: emailRE.user + "@" + emailRE.domain,
+        email: new RegExp(email.user + "@" + email.domain, 'i'),
 
         /**
          * [url description]
          *
          * @type {String}
          */
-        url: urlRE.scheme + urlRE.host + urlRE.port + urlRE.path
+        url: new RegExp(url.scheme + url.host + url.port + url.path, 'i')
 
     };
 

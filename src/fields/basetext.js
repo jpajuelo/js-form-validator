@@ -19,12 +19,6 @@
 
     "use strict";
 
-    var defineClass        = utils.inheritance.defineClass,
-        updateObject       = utils.object.update,
-        MinLengthValidator = plugin.validators.MinLengthValidator,
-        MaxLengthValidator = plugin.validators.MaxLengthValidator,
-        RegExpValidator    = plugin.validators.RegExpValidator;
-
     // **********************************************************************************
     // CLASS DEFINITION
     // **********************************************************************************
@@ -37,10 +31,10 @@
      * @param {String} name [description]
      * @param {Object.<String, *>} [options] [description]
      */
-    ns.BaseTextField = defineClass({
+    ns.BaseTextField = utils.define({
 
         constructor: function BaseTextField(name, options) {
-            this.superClass(name, updateValidators(updateObject(defaults, options)));
+            this.superClass(name, addValidators(utils.update(defaults, options)));
         },
 
         inherit: ns.AbstractField
@@ -55,24 +49,59 @@
         minLength: 0,
         maxLength: 0,
         regExp: null,
-        controlTag: 'input',
-        validators: []
+        validators: [],
+        errorMessages: {
+            min_length: "This field must be at least %(minLength)s chars.",
+            max_length: "This field must be at most %(maxLength)s chars.",
+            invalid: "This field must be a valid value."
+        }
     };
 
-    var updateValidators = function updateValidators(options) {
+    var addValidators = function addValidators(options) {
         if (options.regExp instanceof RegExp) {
-            options.validators.unshift(new RegExpValidator(options.regExp));
+            options.validators.unshift(cleanInvalid.bind(options));
         }
 
-        if (options.maxLength > options.minLength) {
-            options.validators.unshift(new MaxLengthValidator(options.maxLength));
+        if (options.maxLength > 0 && options.maxLength > options.minLength) {
+            options.validators.unshift(cleanMaxLength.bind(options));
         }
 
         if (options.minLength > 0) {
-            options.validators.unshift(new MinLengthValidator(options.minLength));
+            options.validators.unshift(cleanMinLength.bind(options));
         }
 
         return options;
+    };
+
+    var cleanMaxLength = function cleanMaxLength(value, field) {
+
+        if (value && value.length > this.maxLength) {
+            throw new ns.ValidationError(this.errorMessages.max_length, {
+                maxLength: this.maxLength
+            });
+        }
+
+        return value;
+    };
+
+    var cleanMinLength = function cleanMinLength(value, field) {
+
+        if (value && value.length < this.minLength) {
+            throw new ns.ValidationError(this.errorMessages.min_length, {
+                minLength: this.minLength
+            });
+        }
+
+        return value;
+    };
+
+    var cleanInvalid = function cleanInvalid(value, field) {
+
+        if (value && !this.regExp.test(value)) {
+            throw new ns.ValidationError(this.errorMessages.invalid);
+        }
+
+        return value;
     };
 
 })(plugin.fields, plugin.utils);

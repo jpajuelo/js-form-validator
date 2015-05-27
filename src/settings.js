@@ -19,49 +19,6 @@
 
     "use strict";
 
-    var updateObject = utils.object.update;
-
-    // **********************************************************************************
-    // NAMESPACE DEFINITION
-    // **********************************************************************************
-
-    /**
-     * @namespace [description]
-     */
-    ns.settings = {
-
-        /**
-         * [clean description]
-         */
-        clean: function clean() {
-            globals = {};
-        },
-
-        /**
-         * [get description]
-         *
-         * @param {String} name [description]
-         * @returns {String} [description]
-         */
-        get: function get(name) {
-            if (!(name in defaults)) {
-                throw new TypeError("[error description]");
-            }
-
-            return name in globals ? globals[name] : defaults[name];
-        },
-
-        /**
-         * [update description]
-         *
-         * @param {Object.<String, *>} options [description]
-         */
-        update: function update(options) {
-            globals = updateObject(defaults, options);
-        }
-
-    };
-
     // **********************************************************************************
     // PRIVATE MEMBERS
     // **********************************************************************************
@@ -79,6 +36,47 @@
         labelTag:      "label"
     };
 
-    var globals = {};
+    var user = {};
+
+    // **********************************************************************************
+    // NAMESPACE DEFINITION
+    // **********************************************************************************
+
+    /**
+     * @namespace [description]
+     */
+    ns.settings = {
+
+        /**
+         * [clean description]
+         */
+        clean: function clean() {
+            user = {};
+        },
+
+        /**
+         * [get description]
+         *
+         * @param {String} name [description]
+         * @returns {String} [description]
+         */
+        get: function get(name) {
+            if (!(name in defaults)) {
+                throw new TypeError("[error description]");
+            }
+
+            return name in user ? user[name] : defaults[name];
+        },
+
+        /**
+         * [update description]
+         *
+         * @param {Object.<String, *>} options [description]
+         */
+        update: function update(options) {
+            user = utils.update(defaults, options);
+        }
+
+    };
 
 })(plugin, plugin.utils);

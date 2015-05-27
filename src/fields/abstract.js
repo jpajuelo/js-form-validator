@@ -15,17 +15,9 @@
  */
 
 
-(function (ns, utils) {
+(function (ns, utils, user, mixins) {
 
     "use strict";
-
-    var defineClass        = utils.inheritance.defineClass,
-        updateObject       = utils.object.update,
-        formatString       = utils.string.format,
-        getSetting         = plugin.settings.get,
-        ValidationError    = plugin.validators.ValidationError,
-        RequiredValidator  = plugin.validators.RequiredValidator,
-        EventCapturerMixin = plugin.mixins.EventCapturerMixin;
 
     // **********************************************************************************
     // CLASS DEFINITION
@@ -38,10 +30,10 @@
      * @param {String} name [description]
      * @param {Object.<String, *>} [options] [description]
      */
-    ns.AbstractField = defineClass({
+    ns.AbstractField = utils.define({
 
         constructor: function AbstractField(name, options) {
-            options = updateObject(defaults, options);
+            options = utils.update(defaults, options);
 
             this.name = getName(name);
 
@@ -52,10 +44,15 @@
             addAttrs.call(this, options.controlAttrs);
 
             this.element = createElement.call(this);
-            this.validators = getValidators(options);
 
             this.state = ns.states.CLEANED;
             this.error = null;
+
+            if (options.required) {
+                options.validators.unshift(cleanRequired.bind(options));
+            }
+
+            this.validators = options.validators;
 
             Object.defineProperty(this, 'errorMessage', {
                 get: function get() {
@@ -72,7 +69,7 @@
             this.mixinClass(0, ['failure', 'success']);
         },
 
-        mixins: [EventCapturerMixin],
+        mixins: [mixins.EventCapturer],
 
         members: {
 
@@ -123,7 +120,8 @@
              * @returns {AbstractField} The instance on which the method is called.
              */
             addError: function addError(error) {
-                if (!(error instanceof ValidationError)) {
+
+                if (!(error instanceof ns.ValidationError)) {
                     throw new TypeError("[error description");
                 }
 
@@ -157,7 +155,8 @@
              * @returns {AbstractField} The instance on which the method is called.
              */
             clean: function clean() {
-                if (this.state === ns.states.FAILURE) {
+
+                if (this.hasError()) {
                     removeError.call(this);
                 }
 
@@ -173,6 +172,10 @@
              */
             get: function get() {
                 return this.element;
+            },
+
+            hasError: function hasError() {
+                return this.state === ns.states.FAILURE;
             },
 
             /**
@@ -201,10 +204,13 @@
         controlTag: "",
         controlAttrs: {},
         validators: [],
-        errorMessages: {}
+        errorMessages: {
+            required: "This field is required."
+        }
     };
 
     var addAttrs = function addAttrs(controlAttrs) {
+
         for (var name in controlAttrs) {
             this.addAttr(name, controlAttrs[name]);
         }
@@ -213,9 +219,9 @@
     };
 
     var createElement = function createElement() {
-        var element = document.createElement(getSetting('fieldTag'));
+        var element = document.createElement(user.get('fieldTag'));
 
-        element.className = getSetting('fieldClass');
+        element.className = user.get('fieldClass');
 
         if (this.label !== null) {
             element.appendChild(this.label);
@@ -236,7 +242,16 @@
 
     var findError = function findError(value) {
         return this.validators.some(function (validator) {
-            return throwsError.call(this, validator, value);
+            try {
+                validator(value, this);
+            } catch (e) {
+                if (!(e instanceof ns.ValidationError)) {
+                    throw e;
+                }
+                this._insertError(e);
+            }
+
+            return this.hasError();
         }, this);
     };
 
@@ -245,12 +260,12 @@
             controlId = getId(options.controlAttrs);
 
         if (controlId) {
-            control.setAttribute('id', formatString(controlId, {
+            control.id = utils.format(controlId, {
                 name: this.name
-            }));
+            });
         }
 
-        control.className = getSetting('controlClass');
+        control.className = user.get('controlClass');
         control.name = this.name;
 
         return control;
@@ -260,8 +275,8 @@
         var helpText = null;
 
         if (options.helpText) {
-            helpText = document.createElement(getSetting('helpTextTag'));
-            helpText.className = getSetting('helpTextClass');
+            helpText = document.createElement(user.get('helpTextTag'));
+            helpText.className = user.get('helpTextClass');
             helpText.textContent = options.helpText;
         }
 
@@ -269,7 +284,7 @@
     };
 
     var getId = function getId(controlAttrs) {
-        var id = 'id' in controlAttrs ? controlAttrs.id : getSetting('controlId');
+        var id = 'id' in controlAttrs ? controlAttrs.id : user.get('controlId');
 
         delete controlAttrs.id;
 
@@ -281,8 +296,8 @@
             optional;
 
         if (options.label) {
-            label = document.createElement(getSetting('labelTag'));
-            label.className = getSetting('labelClass');
+            label = document.createElement(user.get('labelTag'));
+            label.className = user.get('labelClass');
             label.textContent = options.label;
 
             if (!options.required) {
@@ -302,18 +317,13 @@
         return name;
     };
 
-    var getValidators = function getValidators(options) {
-        if (options.required) {
-            options.validators.unshift(new RequiredValidator());
+    var cleanRequired = function cleanRequired(value, field) {
+
+        if (!value.length) {
+            throw new ns.ValidationError(this.errorMessages.required);
         }
 
-        return options.validators.map(function (validator) {
-            if (validator.code in options.errorMessages) {
-                validator.addMessage(options.errorMessages[validator.code]);
-            }
-
-            return validator;
-        });
+        return value;
     };
 
     var removeError = function removeError() {
@@ -323,22 +333,4 @@
         return this;
     };
 
-    var throwsError = function throwsError(validator, value) {
-        try {
-            if (typeof validator === 'function') {
-                validator(value, this);
-            } else {
-                validator.trigger(value, this);
-            }
-        } catch (e) {
-            if (!(e instanceof ValidationError)) {
-                throw e;
-            }
-
-            this._insertError(e);
-        }
-
-        return this.state === ns.states.FAILURE;
-    };
-
-})(plugin.fields, plugin.utils);
+})(plugin.fields, plugin.utils, plugin.settings, plugin.mixins);

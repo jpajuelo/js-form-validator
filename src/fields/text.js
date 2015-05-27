@@ -19,9 +19,6 @@
 
     "use strict";
 
-    var defineClass  = utils.inheritance.defineClass,
-        updateObject = utils.object.update;
-
     // **********************************************************************************
     // CLASS DEFINITION
     // **********************************************************************************
@@ -34,10 +31,10 @@
      * @param {String} name [description]
      * @param {Object.<String, *>} [options] [description]
      */
-    ns.TextField = defineClass({
+    ns.TextField = utils.define({
 
         constructor: function TextField(name, options) {
-            this.superClass(name, updateObject(defaults, options));
+            this.superClass(name, utils.update(defaults, options));
         },
 
         inherit: ns.BaseTextField
@@ -49,6 +46,7 @@
     // **********************************************************************************
 
     var defaults = {
+        controlTag: 'input',
         controlAttrs: {
             type: 'text'
         }

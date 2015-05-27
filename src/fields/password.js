@@ -19,9 +19,6 @@
 
     "use strict";
 
-    var defineClass  = utils.inheritance.defineClass,
-        updateObject = utils.object.update;
-
     // **********************************************************************************
     // CLASS DEFINITION
     // **********************************************************************************
@@ -34,10 +31,10 @@
      * @param {String} name [description]
      * @param {Object.<String, *>} [options] [description]
      */
-    ns.PasswordField = defineClass({
+    ns.PasswordField = utils.define({
 
         constructor: function PasswordField(name, options) {
-            this.superClass(name, updateObject(defaults, options));
+            this.superClass(name, utils.update(defaults, options));
         },
 
         inherit: ns.TextField

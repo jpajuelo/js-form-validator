@@ -19,11 +19,6 @@
 
     "use strict";
 
-    var defineClass        = utils.inheritance.defineClass,
-        updateObject       = utils.object.update,
-        pattern            = utils.pattern.url,
-        URISchemeValidator = plugin.validators.URISchemeValidator;
-
     // **********************************************************************************
     // CLASS DEFINITION
     // **********************************************************************************
@@ -36,10 +31,10 @@
      * @param {String} name [description]
      * @param {Object.<String, *>} [options] [description]
      */
-    ns.URLField = defineClass({
+    ns.URLField = utils.define({
 
         constructor: function URLField(name, options) {
-            this.superClass(name, updateValidators(updateObject(defaults, options)));
+            this.superClass(name, addValidator(utils.update(defaults, options)));
         },
 
         inherit: ns.TextField
@@ -51,20 +46,33 @@
     // **********************************************************************************
 
     var defaults = {
-        regexp: new RegExp(pattern, "i"),
+        regExp: utils.regexps.url,
         schemes: [],
         validators: [],
         errorMessages: {
-            invalid: "This field must be a valid URL."
+            invalid: "This field must be a valid URL.",
+            invalid_scheme: "The URI scheme must be (%(schemes)s)."
         }
     };
 
-    var updateValidators = function updateValidators(options) {
+    var addValidator = function addValidator(options) {
+
         if (options.schemes.length) {
-            options.validators.unshift(new URISchemeValidator(options.schemes));
+            options.validators.unshift(cleanInvalidScheme.bind(options));
         }
 
         return options;
+    };
+
+    var cleanInvalidScheme = function cleanInvalidScheme(value, field) {
+
+        if (value && this.schemes.indexOf(value.split("://")[0]) < 0) {
+            throw new ns.ValidationError(this.errorMessages.invalid_scheme, {
+                schemes: this.schemes.join(" | ")
+            });
+        }
+
+        return value;
     };
 
 })(plugin.fields, plugin.utils);

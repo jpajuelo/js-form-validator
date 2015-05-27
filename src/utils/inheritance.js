@@ -20,37 +20,30 @@
     "use strict";
 
     // **********************************************************************************
-    // NAMESPACE DEFINITION
+    // PUBLIC MEMBERS
     // **********************************************************************************
 
     /**
-     * @namespace [description]
+     * [define description]
+     *
+     * @param {Object.<String, *>} features [description]
+     * @returns {Function} [description]
      */
-    ns.inheritance = {
+    ns.define = function define(features) {
 
-        /**
-         * [defineClass description]
-         *
-         * @param {Object.<String, *>} definition [description]
-         * @returns {Function} [description]
-         */
-        defineClass: function defineClass(definition) {
-
-            if ('inherit' in definition) {
-                inherit(definition.constructor, definition.inherit);
-            }
-
-            if ('mixins' in definition) {
-                bindMixins(definition.constructor, definition.mixins);
-            }
-
-            if ('members' in definition) {
-                addMembers(definition.constructor, definition.members);
-            }
-
-            return definition.constructor;
+        if ('inherit' in features) {
+            inherit(features.constructor, features.inherit);
         }
 
+        if ('mixins' in features) {
+            bindMixins(features.constructor, features.mixins);
+        }
+
+        if ('members' in features) {
+            addMembers(features.constructor, features.members);
+        }
+
+        return features.constructor;
     };
 
     // **********************************************************************************
@@ -58,6 +51,7 @@
     // **********************************************************************************
 
     var addMembers = function addMembers(constructor, members) {
+
         for (var name in members) {
             constructor.prototype[name] = members[name];
         }

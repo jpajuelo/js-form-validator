@@ -19,10 +19,6 @@
 
     "use strict";
 
-    var defineClass  = utils.inheritance.defineClass,
-        updateObject = utils.object.update,
-        pattern      = utils.pattern.email;
-
     // **********************************************************************************
     // CLASS DEFINITION
     // **********************************************************************************
@@ -35,10 +31,10 @@
      * @param {String} name [description]
      * @param {Object.<String, *>} [options] [description]
      */
-    ns.EmailField = defineClass({
+    ns.EmailField = utils.define({
 
         constructor: function EmailField(name, options) {
-            this.superClass(name, updateObject(defaults, options));
+            this.superClass(name, utils.update(defaults, options));
         },
 
         inherit: ns.TextField
@@ -50,7 +46,7 @@
     // **********************************************************************************
 
     var defaults = {
-        regexp: new RegExp(pattern, "i"),
+        regExp: utils.regexps.email,
         errorMessages: {
             invalid: "This field must be a valid email address."
         }

@@ -20,56 +20,49 @@
     "use strict";
 
     // **********************************************************************************
-    // NAMESPACE DEFINITION
+    // PUBLIC MEMBERS
     // **********************************************************************************
 
     /**
-     * @namespace [description]
+     * [clone description]
+     *
+     * @param {Object} source [description]
+     * @returns {Object} [description]
      */
-    ns.object = {
+    ns.clone = function clone(source) {
+        var target = {};
 
-        /**
-         * [clone description]
-         *
-         * @param {Object} source [description]
-         * @returns {Object} [description]
-         */
-        clone: function clone(source) {
-            var target = {};
-
-            if (isNull(source)) {
-                return target;
-            }
-
-            if (!isSimple(source)) {
-                throw new TypeError("[error description]");
-            }
-
-            for (var name in source) {
-                target[name] = cloneProp.call(ns.object, source[name]);
-            }
-
-            return target;
-        },
-
-        /**
-         * [update description]
-         *
-         * @param {Object.<String, *>} target [description]
-         * @param {Object.<String, *>} source [description]
-         * @returns {Object.<String, *>} [description]
-         */
-        update: function update(target, source) {
-            target = ns.object.clone(target);
-            source = ns.object.clone(source);
-
-            for (var name in source) {
-                target[name] = updateProp.call(ns.object, target[name], source[name]);
-            }
-
+        if (isNull(source)) {
             return target;
         }
 
+        if (!isSimple(source)) {
+            throw new TypeError("[error description]");
+        }
+
+        for (var name in source) {
+            target[name] = cloneProp.call(ns, source[name]);
+        }
+
+        return target;
+    };
+
+    /**
+     * [update description]
+     *
+     * @param {Object.<String, *>} target [description]
+     * @param {Object.<String, *>} source [description]
+     * @returns {Object.<String, *>} [description]
+     */
+    ns.update = function update(target, source) {
+        target = ns.clone(target);
+        source = ns.clone(source);
+
+        for (var name in source) {
+            target[name] = updateProp.call(ns, target[name], source[name]);
+        }
+
+        return target;
     };
 
     // **********************************************************************************

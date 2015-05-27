@@ -27,7 +27,7 @@ module.exports = function (grunt) {
             "src/utils/object.js",
             "src/utils/inheritance.js",
             "src/utils/string.js",
-            "src/utils/pattern.js",
+            "src/utils/regexp.js",
             "src/settings.js"
         ],
 
@@ -36,19 +36,9 @@ module.exports = function (grunt) {
             "src/mixins/eventcapturer.js"
         ],
 
-        validators: [
-            "src/validators/main.js",
-            "src/validators/exception.js",
-            "src/validators/abstract.js",
-            "src/validators/required.js",
-            "src/validators/minlength.js",
-            "src/validators/maxlength.js",
-            "src/validators/regexp.js",
-            "src/validators/urischeme.js"
-        ],
-
         fields: [
             "src/fields/main.js",
+            "src/fields/exception.js",
             "src/fields/abstract.js",
             "src/fields/basetext.js",
             "src/fields/text.js",
@@ -60,8 +50,7 @@ module.exports = function (grunt) {
         ],
 
         forms: [
-            "src/forms/main.js",
-            "src/forms/validator.js"
+            "src/validator.js"
         ]
 
     };
@@ -86,7 +75,6 @@ module.exports = function (grunt) {
 
         plugin: modules.core
             .concat(modules.mixins)
-            .concat(modules.validators)
             .concat(modules.fields)
             .concat(modules.forms),
 
