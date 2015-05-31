@@ -1,4 +1,4 @@
-# JavaScript Plugin - Form Validator v0.0.3
+# JavaScript Plugin - Form Validator v0.1.0
 
 [![Build Status](https://travis-ci.org/jpajuelo/js-form-validator.svg?branch=master)](https://travis-ci.org/jpajuelo/js-form-validator)
 
@@ -15,6 +15,7 @@
 
 ## Release history
 
+* 2015-05-31   v0.1.0   First official release.
 * 2015-05-27   v0.0.3   Work in progress, not yet officially released.
 
 ## License
