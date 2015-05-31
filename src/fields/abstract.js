@@ -33,36 +33,42 @@
     ns.AbstractField = utils.define({
 
         constructor: function AbstractField(name, options) {
-            options = utils.update(defaults, options);
+            options = addValidator(utils.update(defaults, options));
 
             this.name = getName(name);
 
             this.label = getLabel(options);
-            this.control = getControl.call(this, options);
             this.helpText = getHelpText(options);
 
-            addAttrs.call(this, options.controlAttrs);
-
-            this.element = createElement.call(this);
+            this.control = getControl.call(this, options);
+            this.element = createElement.call(this, options);
 
             this.state = ns.states.CLEANED;
             this.error = null;
-
-            if (options.required) {
-                options.validators.unshift(cleanRequired.bind(options));
-            }
+            this.value = null;
 
             this.validators = options.validators;
+            this.completed = 0;
 
-            Object.defineProperty(this, 'errorMessage', {
-                get: function get() {
-                    return this.error !== null ? this.error.message : null;
-                }
-            });
+            Object.defineProperties(this, {
+                coverage: {
+                    get: function get() {
+                        if (!this.validators.length) {
+                            return 100;
+                        }
 
-            Object.defineProperty(this, 'value', {
-                get: function get() {
-                    return this.control.value.trim();
+                        return (this.completed / this.validators.length) * 100;
+                    }
+                },
+                errorMessage: {
+                    get: function get() {
+                        return this.error !== null ? this.error.message : null;
+                    }
+                },
+                trimmedValue: {
+                    get: function get() {
+                        return this.control.value.trim();
+                    }
                 }
             });
 
@@ -81,8 +87,11 @@
              */
             _insertError: function _insertError(error) {
                 this.element.insertBefore(error.get(), this.control.nextSibling);
+
                 this.state = ns.states.FAILURE;
                 this.error = error;
+
+                this.element.classList.add('has-failed');
 
                 return this.dispatch('failure', error.message, this);
             },
@@ -91,11 +100,19 @@
              * [_insertValue description]
              *
              * @param {String} value [description]
+             * @param {Boolean} commit [description]
              * @returns {AbstractField} The instance on which the method is called.
              */
-            _insertValue: function _insertValue(value) {
+            _insertValue: function _insertValue(value, commit) {
+
+                if (commit) {
+                    this.control.value = value;
+                }
+
                 this.state = ns.states.SUCCESS;
-                this.control.value = value;
+                this.value = value;
+
+                this.element.classList.add('has-passed');
 
                 return this.dispatch('success', value, this);
             },
@@ -135,13 +152,14 @@
              * @returns {AbstractField} The instance on which the method is called.
              */
             addInitialValue: function addInitialValue(initialValue) {
-                return this.clean()._insertValue(initialValue);
+                return this.clean()._insertValue(initialValue, true);
             },
 
             /**
              * [addValidator description]
              *
-             * @param {AbstractValidator|Function} validator [description]
+             * @param {Function} validator [description]
+             * @returns {AbstractField} The instance on which the method is called.
              */
             addValidator: function addValidator(validator) {
                 this.validators.push(validator);
@@ -160,7 +178,12 @@
                     removeError.call(this);
                 }
 
+                if (this.hasPassed()) {
+                    removeValue.call(this);
+                }
+
                 this.state = ns.states.CLEANED;
+                this.completed = 0;
 
                 return this;
             },
@@ -172,6 +195,15 @@
              */
             get: function get() {
                 return this.element;
+            },
+
+            /**
+             * [hasChanged description]
+             *
+             * @returns {Boolean} [description]
+             */
+            hasChanged: function hasChanged() {
+                return this.value === null || this.value !== this.trimmedValue;
             },
 
             /**
@@ -195,12 +227,25 @@
             /**
              * [validate description]
              *
+             * @param {Boolean} [commit=false] [description]
              * @returns {AbstractField} The instance on which the method is called.
              */
-            validate: function validate() {
-                var value = this.clean().value;
+            validate: function validate(commit) {
+                var value;
 
-                return findError.call(this, value) ? this : this._insertValue(value);
+                if (typeof commit !== 'boolean') {
+                    commit = false;
+                }
+
+                if (this.hasChanged() || this.coverage !== 100) {
+                    value = this.clean().trimmedValue;
+
+                    if (!findError.call(this, value)) {
+                        this._insertValue(value, commit);
+                    }
+                }
+
+                return this;
             }
 
         }
@@ -232,7 +277,25 @@
         return this;
     };
 
-    var createElement = function createElement() {
+    var addValidator = function addValidator(options) {
+
+        if (options.required) {
+            options.validators.unshift(cleanRequired.bind(options));
+        }
+
+        return options;
+    };
+
+    var cleanRequired = function cleanRequired(value, field) {
+
+        if (!value.length) {
+            throw new ns.ValidationError(this.errorMessages.required);
+        }
+
+        return value;
+    };
+
+    var createElement = function createElement(options) {
         var element = document.createElement(user.get('fieldTag'));
 
         element.className = user.get('fieldClass');
@@ -245,6 +308,7 @@
             }
         }
 
+        addAttrs.call(this, options.controlAttrs);
         element.appendChild(this.control);
 
         if (this.helpText !== null) {
@@ -258,6 +322,7 @@
         return this.validators.some(function (validator) {
             try {
                 validator(value, this);
+                this.completed++;
             } catch (e) {
                 if (!(e instanceof ns.ValidationError)) {
                     throw e;
@@ -331,18 +396,19 @@
         return name;
     };
 
-    var cleanRequired = function cleanRequired(value, field) {
-
-        if (!value.length) {
-            throw new ns.ValidationError(this.errorMessages.required);
-        }
-
-        return value;
-    };
-
     var removeError = function removeError() {
         this.element.removeChild(this.error.get());
         this.error = null;
+
+        this.element.classList.remove('has-failed');
+
+        return this;
+    };
+
+    var removeValue = function removeValue() {
+        this.value = null;
+
+        this.element.classList.remove('has-passed');
 
         return this;
     };

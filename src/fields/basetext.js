@@ -58,6 +58,7 @@
     };
 
     var addValidators = function addValidators(options) {
+
         if (options.regExp instanceof RegExp) {
             options.validators.unshift(cleanInvalid.bind(options));
         }

@@ -97,6 +97,7 @@ describe("A test suite for field classes", function() {
             });
 
             expect(this.field.validators.length).toBe(0);
+            expect(this.field.coverage).toBe(100);
         });
 
         it("should create instance successfully given controlAttr", function () {
@@ -272,6 +273,20 @@ describe("A test suite for field classes", function() {
             }.bind(this);
 
             expect(this.anonMethod).toThrowError(TypeError, "The thisArg is instance of AbstractField");
+        });
+
+        it("should validate successfully given empty value and field is not required", function () {
+            this.field = this.createField({
+                    controlTag: 'input',
+                    required: false
+                })
+                .attach('success', this.callback)
+                .validate(true);
+
+            this.checkSuccessCallback("");
+
+            this.field.validate();
+            expect(this.field.hasChanged()).toBeFalsy();
         });
 
     });
