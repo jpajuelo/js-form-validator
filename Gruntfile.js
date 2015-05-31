@@ -117,10 +117,10 @@ module.exports = function (grunt) {
                         {type: "html", options: {dir: "test/reports/coverage/html"}}
                     ],
                     thresholds: {
-                        statements: 98,
-                        branches: 98,
-                        functions: 98,
-                        lines: 98
+                        statements: 90,
+                        branches: 90,
+                        functions: 90,
+                        lines: 90
                     }
                 }
             },

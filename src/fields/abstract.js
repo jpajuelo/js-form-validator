@@ -83,7 +83,7 @@
              * [_insertError description]
              *
              * @param {ValidationError} error [description]
-             * @returns {AbstractField} The instance on which the method is called.
+             * @returns {AbstractField} The instance on which the member is called.
              */
             _insertError: function _insertError(error) {
                 this.element.insertBefore(error.get(), this.control.nextSibling);
@@ -101,7 +101,7 @@
              *
              * @param {String} value [description]
              * @param {Boolean} commit [description]
-             * @returns {AbstractField} The instance on which the method is called.
+             * @returns {AbstractField} The instance on which the member is called.
              */
             _insertValue: function _insertValue(value, commit) {
 
@@ -122,7 +122,7 @@
              *
              * @param {String} name [description]
              * @param {String|Number|Boolean} value [description]
-             * @returns {AbstractField} The instance on which the method is called.
+             * @returns {AbstractField} The instance on which the member is called.
              */
             addAttr: function addAttr(name, value) {
                 this.control.setAttribute(name, value);
@@ -134,7 +134,7 @@
              * [addError description]
              *
              * @param {ValidationError} error [description]
-             * @returns {AbstractField} The instance on which the method is called.
+             * @returns {AbstractField} The instance on which the member is called.
              */
             addError: function addError(error) {
 
@@ -149,7 +149,7 @@
              * [addInitialValue description]
              *
              * @param {String|Number|Boolean} initialValue [description]
-             * @returns {AbstractField} The instance on which the method is called.
+             * @returns {AbstractField} The instance on which the member is called.
              */
             addInitialValue: function addInitialValue(initialValue) {
                 return this.clean()._insertValue(initialValue, true);
@@ -159,7 +159,7 @@
              * [addValidator description]
              *
              * @param {Function} validator [description]
-             * @returns {AbstractField} The instance on which the method is called.
+             * @returns {AbstractField} The instance on which the member is called.
              */
             addValidator: function addValidator(validator) {
                 this.validators.push(validator);
@@ -170,7 +170,7 @@
             /**
              * [clean description]
              *
-             * @returns {AbstractField} The instance on which the method is called.
+             * @returns {AbstractField} The instance on which the member is called.
              */
             clean: function clean() {
 
@@ -228,7 +228,7 @@
              * [validate description]
              *
              * @param {Boolean} [commit=false] [description]
-             * @returns {AbstractField} The instance on which the method is called.
+             * @returns {AbstractField} The instance on which the member is called.
              */
             validate: function validate(commit) {
                 var value;

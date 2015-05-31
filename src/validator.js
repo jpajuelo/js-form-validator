@@ -55,11 +55,13 @@
              * @returns {FormValidator} The instance on which the member is called.
              */
             addErrorMessage: function addErrorMessage(name, errorMessage) {
+                var error = new fields.ValidationError(errorMessage);
+
                 if (!(name in this.fieldsByName)){
                     throw new TypeError("[error description]");
                 }
 
-                this.fieldsByName[name].addError(new fields.ValidationError(errorMessage));
+                this.fieldsByName[name].addError(error);
 
                 return this;
             },
@@ -71,6 +73,7 @@
              * @returns {FormValidator} The instance on which the member is called.
              */
             addField: function addField(field) {
+
                 if (!(field instanceof fields.AbstractField)) {
                     throw new TypeError("[error description]");
                 }
@@ -89,6 +92,7 @@
              * @returns {FormValidator} The instance on which the member is called.
              */
             addInitialValue: function addInitialValue(name, initialValue) {
+
                 if (!(name in this.fieldsByName)){
                     throw new TypeError("[error description]");
                 }
@@ -171,6 +175,7 @@
     };
 
     var getFormElement = function getFormElement(name) {
+
         if (!(document.forms[name] instanceof HTMLFormElement)) {
             throw new TypeError("[error description");
         }
@@ -184,6 +189,7 @@
 
         this.fields.push(field);
         this.fieldsByName[field.name] = field;
+
         this.element.insertBefore(field.get(), refElem);
 
         return this;
