@@ -132,7 +132,7 @@
              * @returns {Boolean} [description]
              */
             isValid: function isValid() {
-                return this.fields.every(function (field) {
+                return this.cleanAll().fields.every(function (field) {
                     field.validate();
 
                     return !Object.keys(this.errors).length;
