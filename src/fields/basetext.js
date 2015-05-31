@@ -35,6 +35,9 @@
 
         constructor: function BaseTextField(name, options) {
             this.superClass(name, addValidators(utils.update(defaults, options)));
+
+            this.control.addEventListener('blur', handleOnBlur.bind(this));
+            this.control.addEventListener('input', handleOnInput.bind(this));
         },
 
         inherit: ns.AbstractField
@@ -103,6 +106,14 @@
         }
 
         return value;
+    };
+
+    var handleOnBlur = function handleOnBlur(event) {
+        this.validate(true);
+    };
+
+    var handleOnInput = function handleOnInput(event) {
+        this.validate();
     };
 
 })(plugin.fields, plugin.utils);
