@@ -43,6 +43,8 @@
             fields.forEach(function (field) {
                 this.addField(field);
             }, this);
+
+            this.element.addEventListener('submit', handleOnSubmit.bind(this));
         },
 
         members: {
@@ -181,6 +183,13 @@
         }
 
         return document.forms[name];
+    };
+
+    var handleOnSubmit = function handleOnSubmit(event) {
+
+        if (!this.isValid()) {
+            event.preventDefault();
+        }
     };
 
     var insertField = function insertField(field) {
