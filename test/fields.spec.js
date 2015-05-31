@@ -797,4 +797,37 @@ describe("A test suite for field classes", function() {
 
     });
 
+    describe("A testcase for class FileField", function() {
+
+        beforeAll(function () {
+            this.fieldClass = plugin.fields.FileField;
+        });
+
+        it("should create instance successfully given default options", function () {
+            this.field = this.createField();
+
+            expect(this.field instanceof this.baseClass).toBeTruthy();
+            expect(this.field.validators.length).toBe(1);
+            expect(this.field.control).toEqual('input');
+            expect(this.field.uploaded).toBeNull();
+        });
+
+        it("should create instance successfully given maxValue", function () {
+            this.field = this.createField({
+                maxValue: 1000
+            });
+
+            expect(this.field.validators.length).toBe(2);
+        });
+
+        it("should create instance successfully given maxLength", function () {
+            this.field = this.createField({
+                maxLength: 10
+            });
+
+            expect(this.field.validators.length).toBe(2);
+        });
+
+    });
+
 });
