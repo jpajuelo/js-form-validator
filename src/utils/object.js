@@ -36,7 +36,7 @@
             return target;
         }
 
-        if (!isSimple(source)) {
+        if (!isPlainObject(source)) {
             throw new TypeError("[error description]");
         }
 
@@ -74,7 +74,7 @@
             return null;
         }
 
-        if (isSimple(sourceValue)) {
+        if (isPlainObject(sourceValue)) {
             return this.clone(sourceValue);
         }
 
@@ -89,12 +89,17 @@
         return typeof source === 'undefined' || source === null;
     };
 
-    var isSimple = function isSimple(source) {
+    var isPlainObject = function isPlainObject(source) {
+
         if (typeof source !== 'object') {
             return false;
         }
 
-        return source !== null && source.constructor === Object;
+        if (source.constructor && !Object.hasOwnProperty.call(source.constructor.prototype, 'isPrototypeOf')) {
+            return false;
+        }
+
+        return true;
     };
 
     var isSubClass = function isSubClass(superClass, childClass) {
@@ -131,8 +136,8 @@
             if (isNull(targetValue) || isSubClass(targetValue, sourceValue)) {
                 targetValue = sourceValue;
             }
-        } else if (isSimple(sourceValue)) {
-            if (isNull(targetValue) || isSimple(targetValue)) {
+        } else if (isPlainObject(sourceValue)) {
+            if (isNull(targetValue) || isPlainObject(targetValue)) {
                 targetValue = this.update(targetValue, sourceValue);
             }
         } else if (Array.isArray(sourceValue)) {
